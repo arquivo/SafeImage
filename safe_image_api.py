@@ -1,6 +1,7 @@
 import json
 
 from flask import Flask
+from flask_autodoc import Autodoc
 from flask_restful import Resource, Api
 from flask_restful import reqparse
 
@@ -11,25 +12,35 @@ __email__ = "daniel.bicho@fccn.pt"
 
 application = Flask(__name__)
 api = Api(application)
+auto = Autodoc(application)
 
 parser = reqparse.RequestParser()
 parser.add_argument('image', type=str, help='Image to be classified as safe or not')
 
-classifier = SafeImageClassifier()
 
+@application.before_first_request
+@auto.doc()
+def init_classifier():
+    """ Initiate the Classifier Object before the first request for each process."""
+    global classifier
+    classifier = SafeImageClassifier()
 
 class ClassifierAPI(Resource):
+    """Handles the requests to classify a image"""
+
+    @auto.doc()
     def post(self):
         args = parser.parse_args()
         image_to_classify = args['image'].decode('base64')
         result = classifier.classify(image_to_classify)
         return json.dumps(result), 200
 
-    def get(self):
-        return 200
 
 api.add_resource(ClassifierAPI, '/safeimage')
 
+@application.route('/documentation')
+def documentation():
+    return auto.html()
+
 if __name__ == '__main__':
     application.run()
-
