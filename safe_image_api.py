@@ -19,17 +19,18 @@ parser.add_argument('image', type=str, help='Image to be classified as safe or n
 
 
 @application.before_first_request
-@auto.doc()
 def init_classifier():
     """ Initiate the Classifier Object before the first request for each process."""
     global classifier
     classifier = SafeImageClassifier()
 
+@auto.doc()
 class ClassifierAPI(Resource):
     """Handles the requests to classify a image"""
 
     @auto.doc()
     def post(self):
+        """ Handles POST request with a image to classify"""
         args = parser.parse_args()
         image_to_classify = args['image'].decode('base64')
         result = classifier.classify(image_to_classify)

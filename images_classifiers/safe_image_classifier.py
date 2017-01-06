@@ -1,7 +1,8 @@
 import os
 from collections import defaultdict
-
+from PIL import Image
 import tensorflow as tf
+from io import BytesIO
 
 __author__ = "Daniel Bicho"
 __email__ = "daniel.bicho@fccn.pt"
@@ -28,7 +29,9 @@ class SafeImageClassifier():
 
     def classify(self, image_data):
         """ Classify the image_data if its Safe or Not. Returning the score for each label."""
-        predictions = self.sess.run(self.softmax_tensor, {'DecodeJpeg/contents:0': image_data})
+        image = Image.open(BytesIO(image_data))
+        image_array = image.convert('RGB')
+        predictions = self.sess.run(self.softmax_tensor, {'DecodeJpeg:0': image_array})
 
         # Sort to show labels of first prediction in order of confidence
         top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]

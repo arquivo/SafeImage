@@ -7,7 +7,7 @@ image_64 = str(
         open('/home/dbicho/Documents/FilterProject/validation_images/Porn/somavision_box.jpg', "rb").read()).decode(
         "ascii"))
 
-url = 'http://127.0.0.1:8080/safeimage'
+url = 'http://127.0.0.1:5000/safeimage'
 
 json_data = {"image": image_64}
 
