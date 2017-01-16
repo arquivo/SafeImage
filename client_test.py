@@ -6,7 +6,6 @@ import requests
 
 
 def classify_image(image_url, endpoint):
-
     image_64 = str(
         base64.b64encode(
             urllib2.urlopen(image_url).read()).decode(

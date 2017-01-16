@@ -1,7 +1,8 @@
 import json
+import os
 
 from flask import Flask
-from flask_autodoc import Autodoc
+from flask import render_template
 from flask_restful import Resource, Api
 from flask_restful import reqparse
 
@@ -12,7 +13,6 @@ __email__ = "daniel.bicho@fccn.pt"
 
 application = Flask(__name__)
 api = Api(application)
-auto = Autodoc(application)
 
 parser = reqparse.RequestParser()
 parser.add_argument('image', type=str, help='Image to be classified as safe or not')
@@ -24,24 +24,38 @@ def init_classifier():
     global classifier
     classifier = SafeImageClassifier()
 
-@auto.doc()
 class ClassifierAPI(Resource):
-    """Handles the requests to classify a image"""
+    """Class that presents a REST API to handle image classification."""
 
-    @auto.doc()
     def post(self):
-        """ Handles POST request with a image to classify"""
+        """
+        Handles POST request. The request expect a json document with the following structure:
+
+        Endpoint URL: <host>/safeimage
+        Request Body:
+        {
+            "image" : <base64> image
+        }
+
+        The API can handle any common type of image format. (JPG, PNG, GIF, BMP, etc...)
+        """
         args = parser.parse_args()
         image_to_classify = args['image'].decode('base64')
         result = classifier.classify(image_to_classify)
         return json.dumps(result), 200
 
+@application.route('/backend')
+def testing_backend():
+    """Debug Endpoint to image classifaction. Classify images at the folder /static/images."""
+    scores = []
+    for path in os.listdir('./static/images/'):
+        test_image_path =os.path.join('./static/images/',path)
+        with open(test_image_path, mode='rb') as f:
+            scores.append([path, classifier.classify(f.read())])
+    return render_template('results_view.html', scores = scores )
 
 api.add_resource(ClassifierAPI, '/safeimage')
 
-@application.route('/documentation')
-def documentation():
-    return auto.html()
 
 if __name__ == '__main__':
     application.run()

@@ -1,8 +1,9 @@
 import os
 from collections import defaultdict
-from PIL import Image
-import tensorflow as tf
 from io import BytesIO
+
+import tensorflow as tf
+from PIL import Image
 
 __author__ = "Daniel Bicho"
 __email__ = "daniel.bicho@fccn.pt"
