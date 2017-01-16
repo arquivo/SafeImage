@@ -1,39 +1,32 @@
+import argparse
 import base64
+import urllib2
 
 import requests
 
-image_64 = str(
-    base64.b64encode(
-        open('/home/dbicho/Documents/FilterProject/validation_images/Porn/somavision_box.jpg', "rb").read()).decode(
-        "ascii"))
 
-url = 'http://127.0.0.1:8080/safeimage'
+def classify_image(image_url, endpoint):
 
-json_data = {"image": image_64}
+    image_64 = str(
+        base64.b64encode(
+            urllib2.urlopen(image_url).read()).decode(
+            "ascii"))
 
-response = requests.post(url, json=json_data)
+    json_data = {"image": image_64}
 
-print response.content
+    response = requests.post(endpoint, json=json_data)
 
-image_64 = str(
-    base64.b64encode(open('/home/dbicho/Documents/FilterProject/validation_images/Non-Porn/fofoca-psicologia.jpg',
-                          "rb").read()).decode(
-        "ascii"))
+    print "%s %s" % (response.content, image_url)
 
-json_data = {"image": image_64}
 
-response = requests.post(url, json=json_data)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Client to consume SafeImage API.')
+    parser.add_argument('image_path', help='Specify Image URL to be classified by the API.')
+    parser.add_argument('endpoint', default='http://127.0.0.1:5000/safeimage', nargs='?', help='Specify API endpoint.')
 
-print response.content
+    args = parser.parse_args()
 
-response = requests.post(url, json=json_data)
+    classify_image(args.image_path, args.endpoint)
 
-print response.content
 
-response = requests.post(url, json=json_data)
 
-print response.content
-
-response = requests.post(url, json=json_data)
-
-print response.content
