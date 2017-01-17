@@ -4,6 +4,9 @@ import urllib2
 
 import requests
 
+__author__ = "Daniel Bicho"
+__email__ = "daniel.bicho@fccn.pt"
+
 
 def classify_image(image_url, endpoint):
     image_64 = str(
@@ -26,6 +29,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     classify_image(args.image_path, args.endpoint)
-
-
-
