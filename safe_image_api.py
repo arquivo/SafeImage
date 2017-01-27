@@ -8,7 +8,7 @@ from flask_restful import Resource, Api
 from flask_restful import reqparse
 from sklearn import metrics
 
-from images_classifiers.safe_image_classifier import SafeImageClassifier
+from images_classifiers.classifiers import NSFWClassifier
 
 __author__ = "Daniel Bicho"
 __email__ = "daniel.bicho@fccn.pt"
@@ -24,7 +24,7 @@ parser.add_argument('image', type=str, help='Image to be classified as safe or n
 def init_classifier():
     """ Initiate the Classifier Object before the first request for each process."""
     global classifier
-    classifier = SafeImageClassifier()
+    classifier = NSFWClassifier()
 
 
 class ClassifierAPI(Resource):
@@ -84,8 +84,11 @@ def testing_backend():
 
     # precision recall f1-score support Safe 0.91 0.80 0.85 50 Not Safe 0.76 0.89 0.82 35 avg / total 0.85 0.84 0.84 85
     AUC = metrics.roc_auc_score(y_label, y_score)
+    ACC = metrics.accuracy_score(y_label, y_score)
+    CF = metrics.confusion_matrix(y_label, y_score)
 
-    return render_template('results_view.html', scores_safe=scores_safe, scores_not_safe=scores_not_safe, AUC=AUC)
+    return render_template('results_view.html', scores_safe=scores_safe, scores_not_safe=scores_not_safe, AUC=AUC,
+                           ACC=ACC, CF=CF)
 
 
 api.add_resource(ClassifierAPI, '/safeimage')
