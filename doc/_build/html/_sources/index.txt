@@ -10,14 +10,9 @@ SafeImage is an Web API that the users submit an Image and the service classify 
 
 SafeImage is composed with two components:
 
-1. An REST WebService API provided by Flask Framework.
-2. An Deep Neural Network to classify images.
+#. An REST WebService API provided by Flask Framework.
+#. A Deep Neural Network to classify images using Tensorflow.
 
-
-.. toctree::
-   :maxdepth: 2
-
-   module
 
 Indices and tables
 ==================
@@ -25,4 +20,14 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. toctree::
+   :maxdepth: 2
+
+   images_classifiers
+   images_classifiers.models
+   safe_image_api
+   client_test
+
 

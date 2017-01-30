@@ -30,9 +30,6 @@
   
 
   
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="SafeImage 1.0 documentation" href="../index.html"/>
         <link rel="up" title="Module code" href="index.html"/> 
 
@@ -83,8 +80,13 @@
           
             
             
-                <!-- Local TOC -->
-                <div class="local-toc"></div>
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../images_classifiers.html">images_classifiers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../images_classifiers.models.html">images_classifiers.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../safe_image_api.html">safe_image_api module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client_test.html">client_test module</a></li>
+</ul>
+
             
           
         </div>
@@ -128,24 +130,24 @@
            <div itemprop="articleBody">
             
   <h1>Source code for flask_restful</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">import</span> <span class="nn">difflib</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span><span class="p">,</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span><span class="p">,</span> <span class="n">partial</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">current_app</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">abort</span> <span class="k">as</span> <span class="n">original_flask_abort</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">make_response</span> <span class="k">as</span> <span class="n">original_flask_make_response</span>
-<span class="kn">from</span> <span class="nn">flask.views</span> <span class="k">import</span> <span class="n">MethodView</span>
-<span class="kn">from</span> <span class="nn">flask.signals</span> <span class="k">import</span> <span class="n">got_request_exception</span>
-<span class="kn">from</span> <span class="nn">werkzeug.datastructures</span> <span class="k">import</span> <span class="n">Headers</span>
-<span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="k">import</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">MethodNotAllowed</span><span class="p">,</span> <span class="n">NotFound</span><span class="p">,</span> <span class="n">NotAcceptable</span><span class="p">,</span> <span class="n">InternalServerError</span>
-<span class="kn">from</span> <span class="nn">werkzeug.http</span> <span class="k">import</span> <span class="n">HTTP_STATUS_CODES</span>
-<span class="kn">from</span> <span class="nn">werkzeug.wrappers</span> <span class="k">import</span> <span class="n">Response</span> <span class="k">as</span> <span class="n">ResponseBase</span>
-<span class="kn">from</span> <span class="nn">flask_restful.utils</span> <span class="k">import</span> <span class="n">http_status_message</span><span class="p">,</span> <span class="n">unpack</span><span class="p">,</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">flask_restful.representations.json</span> <span class="k">import</span> <span class="n">output_json</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">current_app</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">abort</span> <span class="k">as</span> <span class="n">original_flask_abort</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">make_response</span> <span class="k">as</span> <span class="n">original_flask_make_response</span>
+<span class="kn">from</span> <span class="nn">flask.views</span> <span class="kn">import</span> <span class="n">MethodView</span>
+<span class="kn">from</span> <span class="nn">flask.signals</span> <span class="kn">import</span> <span class="n">got_request_exception</span>
+<span class="kn">from</span> <span class="nn">werkzeug.datastructures</span> <span class="kn">import</span> <span class="n">Headers</span>
+<span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">MethodNotAllowed</span><span class="p">,</span> <span class="n">NotFound</span><span class="p">,</span> <span class="n">NotAcceptable</span><span class="p">,</span> <span class="n">InternalServerError</span>
+<span class="kn">from</span> <span class="nn">werkzeug.http</span> <span class="kn">import</span> <span class="n">HTTP_STATUS_CODES</span>
+<span class="kn">from</span> <span class="nn">werkzeug.wrappers</span> <span class="kn">import</span> <span class="n">Response</span> <span class="k">as</span> <span class="n">ResponseBase</span>
+<span class="kn">from</span> <span class="nn">flask_restful.utils</span> <span class="kn">import</span> <span class="n">http_status_message</span><span class="p">,</span> <span class="n">unpack</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">flask_restful.representations.json</span> <span class="kn">import</span> <span class="n">output_json</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">flask.helpers</span> <span class="k">import</span> <span class="n">_endpoint_from_view_func</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="k">import</span> <span class="n">MethodType</span>
+<span class="kn">from</span> <span class="nn">flask.helpers</span> <span class="kn">import</span> <span class="n">_endpoint_from_view_func</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 
 
@@ -202,10 +204,10 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
-                 <span class="n">default_mediatype</span><span class="o">=</span><span class="s1">&#39;application/json&#39;</span><span class="p">,</span> <span class="n">decorators</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">catch_all_404s</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">serve_challenge_on_401</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">url_part_order</span><span class="o">=</span><span class="s1">&#39;bae&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                 <span class="n">default_mediatype</span><span class="o">=</span><span class="s1">&#39;application/json&#39;</span><span class="p">,</span> <span class="n">decorators</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">catch_all_404s</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">serve_challenge_on_401</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">url_part_order</span><span class="o">=</span><span class="s1">&#39;bae&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">representations</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">DEFAULT_REPRESENTATIONS</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">urls</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
@@ -215,13 +217,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">serve_challenge_on_401</span> <span class="o">=</span> <span class="n">serve_challenge_on_401</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">url_part_order</span> <span class="o">=</span> <span class="n">url_part_order</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="n">errors</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">blueprint_setup</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blueprint_setup</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resources</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">blueprint</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blueprint</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">init_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
@@ -265,7 +267,7 @@
         <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">url_part_order</span> <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_blueprint_setup_add_url_rule_patch</span><span class="p">(</span><span class="n">blueprint_setup</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_blueprint_setup_add_url_rule_patch</span><span class="p">(</span><span class="n">blueprint_setup</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Method used to patch BlueprintSetupState.add_url_rule for setup</span>
 <span class="sd">        state instance corresponding to this Api instance.  Exists primarily</span>
 <span class="sd">        to enable _complete_url&#39;s function.</span>
@@ -279,12 +281,12 @@
 <span class="sd">        :param **options: See BlueprintSetupState.add_url_rule</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">rule</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">rule</span><span class="p">):</span>
             <span class="n">rule</span> <span class="o">=</span> <span class="n">rule</span><span class="p">(</span><span class="n">blueprint_setup</span><span class="o">.</span><span class="n">url_prefix</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">blueprint_setup</span><span class="o">.</span><span class="n">url_prefix</span><span class="p">:</span>
             <span class="n">rule</span> <span class="o">=</span> <span class="n">blueprint_setup</span><span class="o">.</span><span class="n">url_prefix</span> <span class="o">+</span> <span class="n">rule</span>
         <span class="n">options</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;subdomain&#39;</span><span class="p">,</span> <span class="n">blueprint_setup</span><span class="o">.</span><span class="n">subdomain</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">endpoint</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">endpoint</span> <span class="o">=</span> <span class="n">_endpoint_from_view_func</span><span class="p">(</span><span class="n">view_func</span><span class="p">)</span>
         <span class="n">defaults</span> <span class="o">=</span> <span class="n">blueprint_setup</span><span class="o">.</span><span class="n">url_defaults</span>
         <span class="k">if</span> <span class="s1">&#39;defaults&#39;</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
@@ -341,7 +343,7 @@
             <span class="k">if</span> <span class="n">endpoint</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blueprint</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
                 <span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoint</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blueprint</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="bp">False</span>
         <span class="k">return</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span>
 
     <span class="k">def</span> <span class="nf">_should_use_fr_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -360,7 +362,7 @@
         <span class="k">except</span> <span class="n">MethodNotAllowed</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># Check if the other HTTP methods at this url would hit the Api</span>
             <span class="n">valid_route_method</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">valid_methods</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">rule</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">valid_route_method</span><span class="p">,</span> <span class="n">return_rule</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rule</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">valid_route_method</span><span class="p">,</span> <span class="n">return_rule</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">owns_endpoint</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">NotFound</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">catch_all_404s</span>
@@ -372,10 +374,10 @@
         <span class="sd">&quot;&quot;&quot;Encapsulating the rules for whether the request was to a Flask endpoint&quot;&quot;&quot;</span>
         <span class="c1"># 404&#39;s, 405&#39;s, which might not have a url_rule</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_use_fr_error_handler</span><span class="p">():</span>
-            <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="bp">True</span>
         <span class="c1"># for all other errors, just check if FR dispatched the route</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">url_rule</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="bp">False</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">owns_endpoint</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">url_rule</span><span class="o">.</span><span class="n">endpoint</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">error_router</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_handler</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
@@ -436,17 +438,17 @@
         <span class="n">remove_headers</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Content-Length&#39;</span><span class="p">,)</span>
 
         <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">remove_headers</span><span class="p">:</span>
-            <span class="n">headers</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">headers</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">default_data</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">code</span> <span class="o">&gt;=</span> <span class="mi">500</span><span class="p">:</span>
             <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">exc_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">exc_info</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">exc_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">exc_info</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="n">current_app</span><span class="o">.</span><span class="n">log_exception</span><span class="p">(</span><span class="n">exc_info</span><span class="p">)</span>
 
-        <span class="n">help_on_404</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ERROR_404_HELP&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">help_on_404</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ERROR_404_HELP&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">404</span> <span class="ow">and</span> <span class="n">help_on_404</span><span class="p">:</span>
             <span class="n">rules</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;(&lt;.*&gt;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">rule</span><span class="o">.</span><span class="n">rule</span><span class="p">),</span> <span class="n">rule</span><span class="o">.</span><span class="n">rule</span><span class="p">)</span>
                           <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">current_app</span><span class="o">.</span><span class="n">url_map</span><span class="o">.</span><span class="n">iter_rules</span><span class="p">()])</span>
@@ -470,7 +472,7 @@
             <span class="n">code</span> <span class="o">=</span> <span class="n">custom_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
             <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_data</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">406</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_mediatype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">406</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_mediatype</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c1"># if we are handling NotAcceptable (406), make sure that</span>
             <span class="c1"># make_response uses a representation we support as the</span>
             <span class="c1"># default mediatype (so that make_response doesn&#39;t throw</span>
@@ -527,7 +529,7 @@
 <span class="sd">            api.add_resource(FooSpecial, &#39;/special/foo&#39;, endpoint=&quot;foo&quot;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_register_view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="o">*</span><span class="n">urls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">resource</span><span class="p">,</span> <span class="n">urls</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
@@ -553,7 +555,7 @@
         <span class="k">return</span> <span class="n">decorator</span>
 
     <span class="k">def</span> <span class="nf">_register_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="o">*</span><span class="n">urls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">resource</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">resource</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="n">resource_class_args</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;resource_class_args&#39;</span><span class="p">,</span> <span class="p">())</span>
         <span class="n">resource_class_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;resource_class_kwargs&#39;</span><span class="p">,</span> <span class="p">{})</span>
@@ -617,7 +619,7 @@
 <span class="sd">        Works like :func:`flask.url_for`.&quot;&quot;&quot;</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">endpoint</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blueprint</span><span class="p">:</span>
-            <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">.</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blueprint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;{0}.{1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blueprint</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">url_for</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">values</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">make_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -629,12 +631,12 @@
 
 <span class="sd">        :param data: Python object containing response data to be transformed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">default_mediatype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;fallback_mediatype&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_mediatype</span>
+        <span class="n">default_mediatype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;fallback_mediatype&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_mediatype</span>
         <span class="n">mediatype</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">accept_mimetypes</span><span class="o">.</span><span class="n">best_match</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">representations</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="n">default_mediatype</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">mediatype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mediatype</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NotAcceptable</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">mediatype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">representations</span><span class="p">:</span>
             <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">representations</span><span class="p">[</span><span class="n">mediatype</span><span class="p">](</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -650,7 +652,7 @@
     <span class="k">def</span> <span class="nf">mediatypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of requested mediatypes sent in the Accept header&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">accept_mimetypes</span><span class="p">,</span>
-                                     <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+                                     <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)]</span>
 
     <span class="k">def</span> <span class="nf">representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mediatype</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Allows additional representation transformers to be declared for the</span>
@@ -683,7 +685,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">serve_challenge_on_401</span><span class="p">:</span>
             <span class="n">realm</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_BASIC_AUTH_REALM&quot;</span><span class="p">,</span> <span class="s2">&quot;flask-restful&quot;</span><span class="p">)</span>
-            <span class="n">challenge</span> <span class="o">=</span> <span class="s2">u&quot;</span><span class="si">{0}</span><span class="s2"> realm=</span><span class="se">\&quot;</span><span class="si">{1}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Basic&quot;</span><span class="p">,</span> <span class="n">realm</span><span class="p">)</span>
+            <span class="n">challenge</span> <span class="o">=</span> <span class="s2">u&quot;{0} realm=</span><span class="se">\&quot;</span><span class="s2">{1}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Basic&quot;</span><span class="p">,</span> <span class="n">realm</span><span class="p">)</span>
 
             <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;WWW-Authenticate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">challenge</span>
         <span class="k">return</span> <span class="n">response</span>
@@ -699,17 +701,17 @@
 <span class="sd">    from the url rule used when adding the resource to an Api instance. See</span>
 <span class="sd">    :meth:`~flask_restful.Api.add_resource` for details.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">representations</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">representations</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">method_decorators</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="nf">dispatch_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># Taken from flask</span>
         <span class="c1">#noinspection PyUnresolvedReferences</span>
-        <span class="n">meth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">meth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;HEAD&#39;</span><span class="p">:</span>
-            <span class="n">meth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;get&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">meth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Unimplemented method </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span>
+        <span class="n">meth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">meth</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;HEAD&#39;</span><span class="p">:</span>
+            <span class="n">meth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;get&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">meth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;Unimplemented method </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span>
 
         <span class="k">for</span> <span class="n">decorator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">method_decorators</span><span class="p">:</span>
             <span class="n">meth</span> <span class="o">=</span> <span class="n">decorator</span><span class="p">(</span><span class="n">meth</span><span class="p">)</span>
@@ -722,7 +724,7 @@
         <span class="n">representations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">representations</span> <span class="ow">or</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
         <span class="c1">#noinspection PyUnresolvedReferences</span>
-        <span class="n">mediatype</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">accept_mimetypes</span><span class="o">.</span><span class="n">best_match</span><span class="p">(</span><span class="n">representations</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">mediatype</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">accept_mimetypes</span><span class="o">.</span><span class="n">best_match</span><span class="p">(</span><span class="n">representations</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">mediatype</span> <span class="ow">in</span> <span class="n">representations</span><span class="p">:</span>
             <span class="n">data</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
             <span class="n">resp</span> <span class="o">=</span> <span class="n">representations</span><span class="p">[</span><span class="n">mediatype</span><span class="p">](</span><span class="n">data</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
@@ -732,7 +734,7 @@
         <span class="k">return</span> <span class="n">resp</span>
 
 
-<span class="k">def</span> <span class="nf">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">envelope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">marshal</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">envelope</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Takes raw data (in the form of a dict, list, object) and a dict of</span>
 <span class="sd">    fields to output and filters the data based on those fields.</span>
 
@@ -793,7 +795,7 @@
 
 <span class="sd">    see :meth:`flask_restful.marshal`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">envelope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">envelope</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param fields: a dict of whose keys will make up the final</span>
 <span class="sd">                       serialized response output</span>

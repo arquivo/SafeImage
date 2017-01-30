@@ -8,4 +8,3 @@ SafeImageAPI
    images_classifiers
    kaffe
    safe_image_api
-   setup

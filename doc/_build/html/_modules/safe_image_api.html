@@ -30,9 +30,6 @@
   
 
   
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="SafeImage 1.0 documentation" href="../index.html"/>
         <link rel="up" title="Module code" href="index.html"/> 
 
@@ -83,8 +80,13 @@
           
             
             
-                <!-- Local TOC -->
-                <div class="local-toc"></div>
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../images_classifiers.html">images_classifiers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../images_classifiers.models.html">images_classifiers.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../safe_image_api.html">safe_image_api module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../client_test.html">client_test module</a></li>
+</ul>
+
             
           
         </div>
@@ -131,12 +133,14 @@
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Flask</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">render_template</span>
-<span class="kn">from</span> <span class="nn">flask_restful</span> <span class="k">import</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">Api</span>
-<span class="kn">from</span> <span class="nn">flask_restful</span> <span class="k">import</span> <span class="n">reqparse</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">render_template</span>
+<span class="kn">from</span> <span class="nn">flask_restful</span> <span class="kn">import</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">Api</span>
+<span class="kn">from</span> <span class="nn">flask_restful</span> <span class="kn">import</span> <span class="n">reqparse</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
 
-<span class="kn">from</span> <span class="nn">images_classifiers.safe_image_classifier</span> <span class="k">import</span> <span class="n">SafeImageClassifier</span>
+<span class="kn">from</span> <span class="nn">images_classifiers.classifiers</span> <span class="kn">import</span> <span class="n">NSFWClassifier</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Daniel Bicho&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;daniel.bicho@fccn.pt&quot;</span>
@@ -148,34 +152,74 @@
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Image to be classified as safe or not&#39;</span><span class="p">)</span>
 
 
-<span class="nd">@application</span><span class="o">.</span><span class="n">before_first_request</span>
+<span class="nd">@application.before_first_request</span>
 <div class="viewcode-block" id="init_classifier"><a class="viewcode-back" href="../safe_image_api.html#safe_image_api.init_classifier">[docs]</a><span class="k">def</span> <span class="nf">init_classifier</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; Initiate the Classifier Object before the first request for each process.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">classifier</span>
-    <span class="n">classifier</span> <span class="o">=</span> <span class="n">SafeImageClassifier</span><span class="p">()</span></div>
+    <span class="n">classifier</span> <span class="o">=</span> <span class="n">NSFWClassifier</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="ClassifierAPI"><a class="viewcode-back" href="../safe_image_api.html#safe_image_api.ClassifierAPI">[docs]</a><span class="k">class</span> <span class="nc">ClassifierAPI</span><span class="p">(</span><span class="n">Resource</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class that presents a REST API to handle image classification.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ClassifierAPI.post"><a class="viewcode-back" href="../safe_image_api.html#safe_image_api.ClassifierAPI.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles POST request. The request expect a JSON document with the following structure.</span>
+<span class="sd">        </span>
+<span class="sd">            &quot;image&quot; : &lt;base64&gt; image</span>
 
+<span class="sd">        The API can handle any common type of image format. (JPG, PNG, GIF, BMP, etc...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
         <span class="n">image_to_classify</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;base64&#39;</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">image_to_classify</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="mi">200</span></div></div>
 
-<span class="nd">@application</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/backend&#39;</span><span class="p">)</span>
+
+<span class="nd">@application.route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
 <div class="viewcode-block" id="testing_backend"><a class="viewcode-back" href="../safe_image_api.html#safe_image_api.testing_backend">[docs]</a><span class="k">def</span> <span class="nf">testing_backend</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Debug Endpoint to image classifaction. Classify images at the folder /static/images.&quot;&quot;&quot;</span>
-    <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;./static/images/&#39;</span><span class="p">):</span>
-        <span class="n">test_image_path</span> <span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;./static/images/&#39;</span><span class="p">,</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">scores_safe</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;./static/images/Safe&#39;</span><span class="p">):</span>
+        <span class="n">test_image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;./static/images/Safe&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">test_image_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">path</span><span class="p">,</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())])</span>
-    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;results_view.html&#39;</span><span class="p">,</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">scores</span> <span class="p">)</span></div>
+            <span class="n">scores_safe</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">path</span><span class="p">,</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())])</span>
+
+    <span class="n">scores_not_safe</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;./static/images/NotSafe&#39;</span><span class="p">):</span>
+        <span class="n">test_image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;./static/images/NotSafe&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">test_image_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">scores_not_safe</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">path</span><span class="p">,</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())])</span>
+
+    <span class="n">y_</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">scores_safe</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;NSFW&#39;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mf">0.7</span><span class="p">:</span>
+            <span class="n">y_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">scores_not_safe</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;NSFW&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
+            <span class="n">y_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">y_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y_</span><span class="p">)</span>
+    <span class="n">y_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scores_safe</span><span class="p">)),</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scores_not_safe</span><span class="p">)))))</span>
+
+    <span class="c1"># report = metrics.classification_report(y_label, y_score, target_names=[&#39;Safe&#39;, &#39;Not Safe&#39;])</span>
+
+    <span class="c1"># precision recall f1-score support Safe 0.91 0.80 0.85 50 Not Safe 0.76 0.89 0.82 35 avg / total 0.85 0.84 0.84 85</span>
+    <span class="n">AUC</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y_score</span><span class="p">)</span>
+    <span class="n">ACC</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y_score</span><span class="p">)</span>
+    <span class="n">CF</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_label</span><span class="p">,</span> <span class="n">y_score</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;results_view.html&#39;</span><span class="p">,</span> <span class="n">scores_safe</span><span class="o">=</span><span class="n">scores_safe</span><span class="p">,</span> <span class="n">scores_not_safe</span><span class="o">=</span><span class="n">scores_not_safe</span><span class="p">,</span> <span class="n">AUC</span><span class="o">=</span><span class="n">AUC</span><span class="p">,</span>
+                           <span class="n">ACC</span><span class="o">=</span><span class="n">ACC</span><span class="p">,</span> <span class="n">CF</span><span class="o">=</span><span class="n">CF</span><span class="p">)</span></div>
+
 
 <span class="n">api</span><span class="o">.</span><span class="n">add_resource</span><span class="p">(</span><span class="n">ClassifierAPI</span><span class="p">,</span> <span class="s1">&#39;/safeimage&#39;</span><span class="p">)</span>
-
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">application</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>

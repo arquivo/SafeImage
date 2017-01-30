@@ -20,7 +20,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
-
+sys.path.insert(0, os.path.abspath('/home/dbicho/.virtualenvs/tensorflow/lib/python2.7/site-packages/'))
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -131,7 +131,9 @@ html_theme = 'sphinx_rtd_theme'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+#html_theme_options = {
+#	'navigation_depth' : 4,	
+#}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -180,8 +182,7 @@ html_static_path = ['_static']
 
 # Custom sidebar templates, maps document names to template names.
 #
-html_sidebars = {'**': ['localtoc.html']}
-
+html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'], }
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
 #

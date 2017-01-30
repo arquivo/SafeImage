@@ -32,13 +32,9 @@ class ClassifierAPI(Resource):
 
     def post(self):
         """
-        Handles POST request. The request expect a json document with the following structure:
+        Handles POST request. The request expect a JSON document with the following structure.
 
-        Endpoint URL: <host>/safeimage
-        Request Body:
-        {
             "image" : <base64> image
-        }
 
         The API can handle any common type of image format. (JPG, PNG, GIF, BMP, etc...)
         """

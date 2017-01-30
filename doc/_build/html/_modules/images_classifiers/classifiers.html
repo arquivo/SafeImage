@@ -80,7 +80,11 @@
           
             
             
-                <ul class="simple">
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../images_classifiers.html">images_classifiers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../images_classifiers.models.html">images_classifiers.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../safe_image_api.html">safe_image_api module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../client_test.html">client_test module</a></li>
 </ul>
 
             
@@ -130,6 +134,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
@@ -141,7 +146,7 @@
 
 
 <div class="viewcode-block" id="NSFWClassifier"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.NSFWClassifier">[docs]</a><span class="k">class</span> <span class="nc">NSFWClassifier</span><span class="p">(</span><span class="n">Classifier</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Not Safe For Work Image (NFSFW) Classifier.</span>
+    <span class="sd">&quot;&quot;&quot;Not Safe For Work Image (NSFW) Classifier.</span>
 
 <span class="sd">    This class classify an image if its NSFW or not.</span>
 <span class="sd">    It uses the open sourced NSFW classifier model used by Yahoo converted to a Tensorflow network.</span>
@@ -169,7 +174,17 @@
     <span class="c1"># TODO add support for more image types</span>
 <div class="viewcode-block" id="NSFWClassifier.load_image"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.NSFWClassifier.load_image">[docs]</a>    <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">is_jpeg</span><span class="p">):</span>
         <span class="c1"># Decode the image data</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_jpeg</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_data</span><span class="p">))</span>
+        <span class="n">image_array</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image_array</span><span class="p">)</span>
+
+        <span class="c1"># 20x faster method to convert a Pillow ImageObject to numpy array</span>
+        <span class="c1"># dont work</span>
+        <span class="c1">#data = list(image.getdata())</span>
+        <span class="c1">#img = np.fromstring(data.tostring(), dtype=&#39;uint8&#39;, count=-1, sep=&#39;&#39;).reshape(</span>
+        <span class="c1">#    data.shape + (len(data.getbands()),))</span>
+
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">expects_bgr</span><span class="p">:</span>
             <span class="c1"># Convert from RGB channel ordering to BGR</span>
@@ -234,8 +249,9 @@
             <span class="n">class_labels</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span> <span class="n">infile</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
+
         <span class="n">score</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">result</span><span class="p">[</span><span class="n">class_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">class_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">result</span></div></div>
 
@@ -292,10 +308,22 @@
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">classifier</span> <span class="o">=</span> <span class="n">NSFWClassifier</span><span class="p">()</span>
+
+    <span class="c1"># Test JPEG Image</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../static/images/NotSafe/5.jpg&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">file_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
     <span class="k">print</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">file_data</span><span class="p">)</span>
+
+    <span class="c1"># Test PNG Image</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../static/images/Safe/mwmac.png&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">file_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">print</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">file_data</span><span class="p">)</span>
+
+    <span class="c1"># Test GIF Image</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../static/images/Safe/noimage3.gif&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">file_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">print</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">file_data</span><span class="p">)</span>
+    <span class="c1"># Test other more uncommom formats</span>
 </pre></div>
 
            </div>

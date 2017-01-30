@@ -30,7 +30,9 @@
   
 
   
-    <link rel="top" title="SafeImage 1.0 documentation" href="index.html"/> 
+    <link rel="top" title="SafeImage 1.0 documentation" href="index.html"/>
+        <link rel="next" title="client_test module" href="client_test.html"/>
+        <link rel="prev" title="images_classifiers.models package" href="images_classifiers.models.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -79,7 +81,11 @@
           
             
             
-                <ul class="simple">
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="images_classifiers.html">images_classifiers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="images_classifiers.models.html">images_classifiers.models package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">safe_image_api module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="client_test.html">client_test module</a></li>
 </ul>
 
             
@@ -124,14 +130,66 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="safe-image-api-module">
-<h1>safe_image_api module<a class="headerlink" href="#safe-image-api-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-safe_image_api">
+<span id="safe-image-api-module"></span><h1>safe_image_api module<a class="headerlink" href="#module-safe_image_api" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="safe_image_api.ClassifierAPI">
+<em class="property">class </em><code class="descclassname">safe_image_api.</code><code class="descname">ClassifierAPI</code><a class="reference internal" href="_modules/safe_image_api.html#ClassifierAPI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#safe_image_api.ClassifierAPI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">flask_restful.Resource</span></code></p>
+<p>Class that presents a REST API to handle image classification.</p>
+<dl class="attribute">
+<dt id="safe_image_api.ClassifierAPI.endpoint">
+<code class="descname">endpoint</code><em class="property"> = 'classifierapi'</em><a class="headerlink" href="#safe_image_api.ClassifierAPI.endpoint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="safe_image_api.ClassifierAPI.mediatypes">
+<code class="descname">mediatypes</code><span class="sig-paren">(</span><em>resource_cls</em><span class="sig-paren">)</span><a class="headerlink" href="#safe_image_api.ClassifierAPI.mediatypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="safe_image_api.ClassifierAPI.methods">
+<code class="descname">methods</code><em class="property"> = ['POST']</em><a class="headerlink" href="#safe_image_api.ClassifierAPI.methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="safe_image_api.ClassifierAPI.post">
+<code class="descname">post</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/safe_image_api.html#ClassifierAPI.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#safe_image_api.ClassifierAPI.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles POST request. The request expect a JSON document with the following structure.</p>
+<blockquote>
+<div>&#8220;image&#8221; : &lt;base64&gt; image</div></blockquote>
+<p>The API can handle any common type of image format. (JPG, PNG, GIF, BMP, etc...)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="safe_image_api.init_classifier">
+<code class="descclassname">safe_image_api.</code><code class="descname">init_classifier</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/safe_image_api.html#init_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#safe_image_api.init_classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate the Classifier Object before the first request for each process.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="safe_image_api.testing_backend">
+<code class="descclassname">safe_image_api.</code><code class="descname">testing_backend</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/safe_image_api.html#testing_backend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#safe_image_api.testing_backend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debug Endpoint to image classifaction. Classify images at the folder /static/images.</p>
+</dd></dl>
+
 </div>
 
 
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="client_test.html" class="btn btn-neutral float-right" title="client_test module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="images_classifiers.models.html" class="btn btn-neutral" title="images_classifiers.models package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
