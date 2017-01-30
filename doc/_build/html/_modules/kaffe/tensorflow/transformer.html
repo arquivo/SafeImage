@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kaffe.tensorflow.transformer &mdash; SafeImage 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="SafeImage 1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SafeImage
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="simple">
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">SafeImage</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>kaffe.tensorflow.transformer</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for kaffe.tensorflow.transformer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..errors</span> <span class="kn">import</span> <span class="n">KaffeError</span><span class="p">,</span> <span class="n">print_stderr</span>
+<span class="kn">from</span> <span class="nn">..graph</span> <span class="kn">import</span> <span class="n">GraphBuilder</span><span class="p">,</span> <span class="n">NodeMapper</span>
+<span class="kn">from</span> <span class="nn">..layers</span> <span class="kn">import</span> <span class="n">NodeKind</span>
+<span class="kn">from</span> <span class="nn">..transformers</span> <span class="kn">import</span> <span class="p">(</span><span class="n">DataInjector</span><span class="p">,</span> <span class="n">DataReshaper</span><span class="p">,</span> <span class="n">NodeRenamer</span><span class="p">,</span> <span class="n">ReLUFuser</span><span class="p">,</span>
+                            <span class="n">BatchNormScaleBiasFuser</span><span class="p">,</span> <span class="n">BatchNormPreprocessor</span><span class="p">,</span> <span class="n">ParameterNamer</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">network</span>
+
+
+<div class="viewcode-block" id="get_padding_type"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.get_padding_type">[docs]</a><span class="k">def</span> <span class="nf">get_padding_type</span><span class="p">(</span><span class="n">kernel_params</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Translates Caffe&#39;s numeric padding to one of (&#39;SAME&#39;, &#39;VALID&#39;).</span>
+<span class="sd">    Caffe supports arbitrary padding values, while TensorFlow only</span>
+<span class="sd">    supports &#39;SAME&#39; and &#39;VALID&#39; modes. So, not all Caffe paddings</span>
+<span class="sd">    can be translated to TensorFlow. There are some subtleties to</span>
+<span class="sd">    how the padding edge-cases are handled. These are described here:</span>
+<span class="sd">    https://github.com/Yangqing/caffe2/blob/master/caffe2/proto/caffe2_legacy.proto</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">k_h</span><span class="p">,</span> <span class="n">k_w</span><span class="p">,</span> <span class="n">s_h</span><span class="p">,</span> <span class="n">s_w</span><span class="p">,</span> <span class="n">p_h</span><span class="p">,</span> <span class="n">p_w</span> <span class="o">=</span> <span class="n">kernel_params</span>
+    <span class="n">s_o_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">input_shape</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">s_h</span><span class="p">))</span>
+    <span class="n">s_o_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">input_shape</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">s_w</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">output_shape</span><span class="o">.</span><span class="n">height</span> <span class="o">==</span> <span class="n">s_o_h</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">output_shape</span><span class="o">.</span><span class="n">width</span> <span class="o">==</span> <span class="n">s_o_w</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;SAME&#39;</span>
+    <span class="n">v_o_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">input_shape</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">k_h</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">s_h</span><span class="p">))</span>
+    <span class="n">v_o_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">input_shape</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="n">k_w</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">s_w</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">output_shape</span><span class="o">.</span><span class="n">height</span> <span class="o">==</span> <span class="n">v_o_h</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">output_shape</span><span class="o">.</span><span class="n">width</span> <span class="o">==</span> <span class="n">v_o_w</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;VALID&#39;</span>
+    <span class="k">return</span> <span class="bp">None</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowNode"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowNode">[docs]</a><span class="k">class</span> <span class="nc">TensorFlowNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;An intermediate representation for TensorFlow operations.&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># A string corresponding to the TensorFlow operation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">op</span>
+        <span class="c1"># Positional arguments for the operation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="c1"># Keyword arguments for the operation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="c1"># The source Caffe node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="TensorFlowNode.format"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowNode.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns a string representation for the given value.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">arg</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowNode.pair"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowNode.pair">[docs]</a>    <span class="k">def</span> <span class="nf">pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns key=formatted(value).&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TensorFlowNode.emit"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowNode.emit">[docs]</a>    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Emits the Python source for this node.&#39;&#39;&#39;</span>
+        <span class="c1"># Format positional arguments</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="c1"># Format any keyword arguments</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pair</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">]</span>
+        <span class="c1"># Set the node name</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pair</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MaybeActivated"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.MaybeActivated">[docs]</a><span class="k">class</span> <span class="nc">MaybeActivated</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inject_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inject_kwargs</span><span class="p">[</span><span class="s1">&#39;relu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">default</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inject_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowMapper"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper">[docs]</a><span class="k">class</span> <span class="nc">TensorFlowMapper</span><span class="p">(</span><span class="n">NodeMapper</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TensorFlowMapper.get_kernel_params"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.get_kernel_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_kernel_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">kernel_params</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">kernel_parameters</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_only_parent</span><span class="p">()</span><span class="o">.</span><span class="n">output_shape</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="n">get_padding_type</span><span class="p">(</span><span class="n">kernel_params</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">output_shape</span><span class="p">)</span>
+        <span class="c1"># Only emit the padding if it&#39;s not the default value.</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;padding&#39;</span><span class="p">:</span> <span class="n">padding</span><span class="p">}</span> <span class="k">if</span> <span class="n">padding</span> <span class="o">!=</span> <span class="n">network</span><span class="o">.</span><span class="n">DEFAULT_PADDING</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">kernel_params</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_convolution"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_convolution">[docs]</a>    <span class="k">def</span> <span class="nf">map_convolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">kernel_params</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_params</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_h</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_w</span>
+        <span class="n">c_o</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">output_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">c_i</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">output_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">group</span>
+        <span class="k">if</span> <span class="n">group</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">bias_term</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;biased&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">assert</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_h</span> <span class="o">==</span> <span class="n">h</span>
+        <span class="k">assert</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_w</span> <span class="o">==</span> <span class="n">w</span>
+        <span class="k">return</span> <span class="n">MaybeActivated</span><span class="p">(</span><span class="n">node</span><span class="p">)(</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_h</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_w</span><span class="p">,</span> <span class="n">c_o</span><span class="p">,</span>
+                                    <span class="n">kernel_params</span><span class="o">.</span><span class="n">stride_h</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">stride_w</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_relu"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_relu">[docs]</a>    <span class="k">def</span> <span class="nf">map_relu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="s1">&#39;relu&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_pooling"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_pooling">[docs]</a>    <span class="k">def</span> <span class="nf">map_pooling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">pool_type</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pool</span>
+        <span class="k">if</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pool_op</span> <span class="o">=</span> <span class="s1">&#39;max_pool&#39;</span>
+        <span class="k">elif</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">pool_op</span> <span class="o">=</span> <span class="s1">&#39;avg_pool&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Stochastic pooling, for instance.</span>
+            <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Unsupported pooling type.&#39;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">kernel_params</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_params</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="n">pool_op</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_h</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">kernel_w</span><span class="p">,</span>
+                              <span class="n">kernel_params</span><span class="o">.</span><span class="n">stride_h</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">.</span><span class="n">stride_w</span><span class="p">,</span> <span class="o">**</span><span class="n">padding</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_inner_product"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_inner_product">[docs]</a>    <span class="k">def</span> <span class="nf">map_inner_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="c1">#TODO: Axis</span>
+        <span class="k">assert</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="c1">#TODO: Unbiased</span>
+        <span class="k">assert</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">bias_term</span> <span class="o">==</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="n">MaybeActivated</span><span class="p">(</span><span class="n">node</span><span class="p">)(</span><span class="s1">&#39;fc&#39;</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">num_output</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_softmax"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_softmax">[docs]</a>    <span class="k">def</span> <span class="nf">map_softmax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="s1">&#39;softmax&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_lrn"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_lrn">[docs]</a>    <span class="k">def</span> <span class="nf">map_lrn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span>
+        <span class="c1"># The window size must be an odd value. For a window</span>
+        <span class="c1"># size of (2*n+1), TensorFlow defines depth_radius = n.</span>
+        <span class="k">assert</span> <span class="n">params</span><span class="o">.</span><span class="n">local_size</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="c1"># Caffe scales by (alpha/(2*n+1)), whereas TensorFlow</span>
+        <span class="c1"># just scales by alpha (as does Krizhevsky&#39;s paper).</span>
+        <span class="c1"># We&#39;ll account for that here.</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">alpha</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">local_size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="s1">&#39;lrn&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">local_size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_concat"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_concat">[docs]</a>    <span class="k">def</span> <span class="nf">map_concat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)[</span><span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">axis</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="s1">&#39;concat&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_dropout"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_dropout">[docs]</a>    <span class="k">def</span> <span class="nf">map_dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="s1">&#39;dropout&#39;</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">dropout_ratio</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_batch_norm"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_batch_norm">[docs]</a>    <span class="k">def</span> <span class="nf">map_batch_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">scale_offset</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">scale_offset</span> <span class="k">else</span> <span class="p">{</span><span class="s1">&#39;scale_offset&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">MaybeActivated</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)(</span><span class="s1">&#39;batch_normalization&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.map_eltwise"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.map_eltwise">[docs]</a>    <span class="k">def</span> <span class="nf">map_eltwise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">operations</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;multiply&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;add&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">}</span>
+        <span class="n">op_code</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">operation</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TensorFlowNode</span><span class="p">(</span><span class="n">operations</span><span class="p">[</span><span class="n">op_code</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Unknown elementwise operation: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">op_code</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TensorFlowMapper.commit"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowMapper.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chains</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chains</span></div></div>
+
+
+<div class="viewcode-block" id="TensorFlowEmitter"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter">[docs]</a><span class="k">class</span> <span class="nc">TensorFlowEmitter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tab</span> <span class="o">=</span> <span class="n">tab</span> <span class="ow">or</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="TensorFlowEmitter.indent"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.indent">[docs]</a>    <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.outdent"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.outdent">[docs]</a>    <span class="k">def</span> <span class="nf">outdent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">[:</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tab</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.statement"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.statement">[docs]</a>    <span class="k">def</span> <span class="nf">statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">s</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.emit_imports"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.emit_imports">[docs]</a>    <span class="k">def</span> <span class="nf">emit_imports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement</span><span class="p">(</span><span class="s1">&#39;from kaffe.tensorflow import Network</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.emit_class_def"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.emit_class_def">[docs]</a>    <span class="k">def</span> <span class="nf">emit_class_def</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement</span><span class="p">(</span><span class="s1">&#39;class </span><span class="si">%s</span><span class="s1">(Network):&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.emit_setup_def"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.emit_setup_def">[docs]</a>    <span class="k">def</span> <span class="nf">emit_setup_def</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement</span><span class="p">(</span><span class="s1">&#39;def setup(self):&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.emit_parents"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.emit_parents">[docs]</a>    <span class="k">def</span> <span class="nf">emit_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">chain</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;(self.feed(&#39;</span>
+        <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;, </span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">parents</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.emit_node"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.emit_node">[docs]</a>    <span class="k">def</span> <span class="nf">emit_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">statement</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="n">emit</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="TensorFlowEmitter.emit"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowEmitter.emit">[docs]</a>    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">chains</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_imports</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_class_def</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_setup_def</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="p">()</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">chains</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_parents</span><span class="p">(</span><span class="n">chain</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">:</span>
+                <span class="n">b</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div></div>
+
+
+<div class="viewcode-block" id="TensorFlowTransformer"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowTransformer">[docs]</a><span class="k">class</span> <span class="nc">TensorFlowTransformer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">def_path</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">def_path</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="TensorFlowTransformer.load"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowTransformer.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">def_path</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+        <span class="c1"># Build the graph</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">GraphBuilder</span><span class="p">(</span><span class="n">def_path</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">data_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c1"># Load and associate learned parameters</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">DataInjector</span><span class="p">(</span><span class="n">def_path</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)(</span><span class="n">graph</span><span class="p">)</span>
+
+        <span class="c1"># Transform the graph</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="c1"># Fuse split batch normalization layers</span>
+            <span class="n">BatchNormScaleBiasFuser</span><span class="p">(),</span>
+
+            <span class="c1"># Fuse ReLUs</span>
+            <span class="c1"># TODO: Move non-linearity application to layer wrapper, allowing</span>
+            <span class="c1"># any arbitrary operation to be optionally activated.</span>
+            <span class="n">ReLUFuser</span><span class="p">(</span><span class="n">allowed_parent_types</span><span class="o">=</span><span class="p">[</span><span class="n">NodeKind</span><span class="o">.</span><span class="n">Convolution</span><span class="p">,</span> <span class="n">NodeKind</span><span class="o">.</span><span class="n">InnerProduct</span><span class="p">,</span>
+                                            <span class="n">NodeKind</span><span class="o">.</span><span class="n">BatchNorm</span><span class="p">]),</span>
+
+            <span class="c1"># Rename nodes</span>
+            <span class="c1"># Slashes are used for scoping in TensorFlow. Replace slashes</span>
+            <span class="c1"># in node names with underscores.</span>
+            <span class="c1"># (Caffe&#39;s GoogLeNet implementation uses slashes)</span>
+            <span class="n">NodeRenamer</span><span class="p">(</span><span class="k">lambda</span> <span class="n">node</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">transformed</span><span class="p">(</span><span class="n">transformers</span><span class="p">)</span>
+
+        <span class="c1"># Display the graph</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="n">print_stderr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TensorFlowTransformer.transform_data"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowTransformer.transform_data">[docs]</a>    <span class="k">def</span> <span class="nf">transform_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">transformers</span> <span class="o">=</span> <span class="p">[</span>
+
+                <span class="c1"># Reshape the parameters to TensorFlow&#39;s ordering</span>
+                <span class="n">DataReshaper</span><span class="p">({</span>
+                    <span class="c1"># (c_o, c_i, h, w) -&gt; (h, w, c_i, c_o)</span>
+                    <span class="n">NodeKind</span><span class="o">.</span><span class="n">Convolution</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+
+                    <span class="c1"># (c_o, c_i) -&gt; (c_i, c_o)</span>
+                    <span class="n">NodeKind</span><span class="o">.</span><span class="n">InnerProduct</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="p">}),</span>
+
+                <span class="c1"># Pre-process batch normalization data</span>
+                <span class="n">BatchNormPreprocessor</span><span class="p">(),</span>
+
+                <span class="c1"># Convert parameters to dictionaries</span>
+                <span class="n">ParameterNamer</span><span class="p">(),</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">transformed</span><span class="p">(</span><span class="n">transformers</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">data</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span></div>
+
+<div class="viewcode-block" id="TensorFlowTransformer.transform_source"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.transformer.TensorFlowTransformer.transform_source">[docs]</a>    <span class="k">def</span> <span class="nf">transform_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">mapper</span> <span class="o">=</span> <span class="n">TensorFlowMapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+            <span class="n">chains</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="n">map</span><span class="p">()</span>
+            <span class="n">emitter</span> <span class="o">=</span> <span class="n">TensorFlowEmitter</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">emitter</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">chains</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Bicho.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kaffe.layers &mdash; SafeImage 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="SafeImage 1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SafeImage
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="simple">
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">SafeImage</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>kaffe.layers</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for kaffe.layers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">.shapes</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">LAYER_DESCRIPTORS</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="c1"># Caffe Types</span>
+    <span class="s1">&#39;AbsVal&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;Accuracy&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;ArgMax&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;BatchNorm&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;BNLL&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;Concat&#39;</span><span class="p">:</span> <span class="n">shape_concat</span><span class="p">,</span>
+    <span class="s1">&#39;ContrastiveLoss&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;Convolution&#39;</span><span class="p">:</span> <span class="n">shape_convolution</span><span class="p">,</span>
+    <span class="s1">&#39;Deconvolution&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;Data&#39;</span><span class="p">:</span> <span class="n">shape_data</span><span class="p">,</span>
+    <span class="s1">&#39;Dropout&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;DummyData&#39;</span><span class="p">:</span> <span class="n">shape_data</span><span class="p">,</span>
+    <span class="s1">&#39;EuclideanLoss&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;Eltwise&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;Exp&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;Flatten&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;HDF5Data&#39;</span><span class="p">:</span> <span class="n">shape_data</span><span class="p">,</span>
+    <span class="s1">&#39;HDF5Output&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;HingeLoss&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;Im2col&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;ImageData&#39;</span><span class="p">:</span> <span class="n">shape_data</span><span class="p">,</span>
+    <span class="s1">&#39;InfogainLoss&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;InnerProduct&#39;</span><span class="p">:</span> <span class="n">shape_inner_product</span><span class="p">,</span>
+    <span class="s1">&#39;Input&#39;</span><span class="p">:</span> <span class="n">shape_data</span><span class="p">,</span>
+    <span class="s1">&#39;LRN&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;MemoryData&#39;</span><span class="p">:</span> <span class="n">shape_mem_data</span><span class="p">,</span>
+    <span class="s1">&#39;MultinomialLogisticLoss&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;MVN&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;Pooling&#39;</span><span class="p">:</span> <span class="n">shape_pool</span><span class="p">,</span>
+    <span class="s1">&#39;Power&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;ReLU&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;Scale&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;Sigmoid&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;SigmoidCrossEntropyLoss&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;Silence&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;Softmax&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;SoftmaxWithLoss&#39;</span><span class="p">:</span> <span class="n">shape_scalar</span><span class="p">,</span>
+    <span class="s1">&#39;Split&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;Slice&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;TanH&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+    <span class="s1">&#39;WindowData&#39;</span><span class="p">:</span> <span class="n">shape_not_implemented</span><span class="p">,</span>
+    <span class="s1">&#39;Threshold&#39;</span><span class="p">:</span> <span class="n">shape_identity</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">LAYER_TYPES</span> <span class="o">=</span> <span class="n">LAYER_DESCRIPTORS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+<span class="n">LayerType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s1">&#39;LayerType&#39;</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">LAYER_TYPES</span><span class="p">})</span>
+
+<div class="viewcode-block" id="NodeKind"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.NodeKind">[docs]</a><span class="k">class</span> <span class="nc">NodeKind</span><span class="p">(</span><span class="n">LayerType</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NodeKind.map_raw_kind"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.NodeKind.map_raw_kind">[docs]</a>    <span class="k">def</span> <span class="nf">map_raw_kind</span><span class="p">(</span><span class="n">kind</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">LAYER_TYPES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">kind</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NodeKind.compute_output_shape"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.NodeKind.compute_output_shape">[docs]</a>    <span class="k">def</span> <span class="nf">compute_output_shape</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">LAYER_DESCRIPTORS</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">kind</span><span class="p">](</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">val</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Output shape computation not implemented for type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">node</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NodeDispatchError"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.NodeDispatchError">[docs]</a><span class="k">class</span> <span class="nc">NodeDispatchError</span><span class="p">(</span><span class="n">KaffeError</span><span class="p">):</span>
+
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NodeDispatch"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.NodeDispatch">[docs]</a><span class="k">class</span> <span class="nc">NodeDispatch</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NodeDispatch.get_handler_name"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.NodeDispatch.get_handler_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_handler_name</span><span class="p">(</span><span class="n">node_kind</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_kind</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="c1"># A catch-all for things like ReLU and tanh</span>
+            <span class="k">return</span> <span class="n">node_kind</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="c1"># Convert from CamelCase to under_scored</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;(.)([A-Z][a-z]+)&#39;</span><span class="p">,</span> <span class="s1">r&#39;\1_\2&#39;</span><span class="p">,</span> <span class="n">node_kind</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;([a-z0-9])([A-Z])&#39;</span><span class="p">,</span> <span class="s1">r&#39;\1_\2&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="NodeDispatch.get_handler"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.NodeDispatch.get_handler">[docs]</a>    <span class="k">def</span> <span class="nf">get_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_kind</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_handler_name</span><span class="p">(</span><span class="n">node_kind</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">prefix</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NodeDispatchError</span><span class="p">(</span><span class="s1">&#39;No handler found for node kind: </span><span class="si">%s</span><span class="s1"> (expected: </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>
+                                    <span class="p">(</span><span class="n">node_kind</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="LayerAdapter"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.LayerAdapter">[docs]</a><span class="k">class</span> <span class="nc">LayerAdapter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">kind</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer</span> <span class="o">=</span> <span class="n">layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">NodeDispatch</span><span class="o">.</span><span class="n">get_handler_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;param&#39;</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NodeDispatchError</span><span class="p">(</span><span class="s1">&#39;Caffe parameters not found for layer kind: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LayerAdapter.get_kernel_value"><a class="viewcode-back" href="../../kaffe.html#kaffe.layers.LayerAdapter.get_kernel_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_kernel_value</span><span class="p">(</span><span class="n">scalar</span><span class="p">,</span> <span class="n">repeated</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">scalar</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">scalar</span>
+        <span class="k">if</span> <span class="n">repeated</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">repeated</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">repeated</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">repeated</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Same value applies to all spatial dimensions</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">repeated</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">assert</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">repeated</span><span class="p">)</span>
+            <span class="c1"># Extract the value for the given spatial dimension</span>
+            <span class="k">return</span> <span class="n">repeated</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unable to determine kernel parameter!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kernel_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="n">NodeKind</span><span class="o">.</span><span class="n">Convolution</span><span class="p">,</span> <span class="n">NodeKind</span><span class="o">.</span><span class="n">Pooling</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span>
+        <span class="n">k_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_value</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kernel_h</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">k_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_value</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kernel_w</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">s_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_value</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">stride_h</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">stride</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">s_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_value</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">stride_w</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">stride</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">p_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_value</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">pad_h</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pad</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">p_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernel_value</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">pad_h</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">pad</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">KernelParameters</span><span class="p">(</span><span class="n">k_h</span><span class="p">,</span> <span class="n">k_w</span><span class="p">,</span> <span class="n">s_h</span><span class="p">,</span> <span class="n">s_w</span><span class="p">,</span> <span class="n">p_h</span><span class="p">,</span> <span class="n">p_w</span><span class="p">)</span></div>
+
+
+<span class="n">KernelParameters</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;KernelParameters&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;kernel_h&#39;</span><span class="p">,</span> <span class="s1">&#39;kernel_w&#39;</span><span class="p">,</span> <span class="s1">&#39;stride_h&#39;</span><span class="p">,</span> <span class="s1">&#39;stride_w&#39;</span><span class="p">,</span>
+                                                   <span class="s1">&#39;pad_h&#39;</span><span class="p">,</span> <span class="s1">&#39;pad_w&#39;</span><span class="p">])</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Bicho.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

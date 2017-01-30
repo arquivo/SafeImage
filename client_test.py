@@ -9,6 +9,17 @@ __email__ = "daniel.bicho@fccn.pt"
 
 
 def classify_image(image_url, endpoint):
+    """Grab a image and classify it through a Classifier Service Endpoint.
+
+    Args:
+        image_url: An image URL, the image can be at a remote location (http://) or at the file system (file://)
+        endpoint: The URL for the Service Endpoint (example: http://127.0.0.1:5000/safeimage)
+
+    Returns:
+        The response JSON string with the classification score to the system output.
+    """
+
+    # Encode with base64 the image bits to send to through the wire
     image_64 = str(
         base64.b64encode(
             urllib2.urlopen(image_url).read()).decode(

@@ -13,9 +13,14 @@ __email__ = "daniel.bicho@fccn.pt"
 
 
 class NSFWClassifier(Classifier):
+    """Not Safe For Work Image (NFSFW) Classifier.
+
+    This class classify an image if its NSFW or not.
+    It uses the open sourced NSFW classifier model used by Yahoo converted to a Tensorflow network.
+    """
+
     def __init__(self):
         """Object constructor. Load the trained model graph to classify images."""
-
 
         # Get the data specifications for the ResNet_50_nsfw model
         self._spec = models.get_data_spec(model_class=models.ResNet_50_1by2_nsfw)
@@ -45,13 +50,18 @@ class NSFWClassifier(Classifier):
         return img
 
     def process_image(self, img, scale, isotropic, crop, mean):
-        '''Crops, scales, and normalizes the given image.
-        scale : The image wil be first scaled to this size.
-                If isotropic is true, the smaller side is rescaled to this,
-                preserving the aspect ratio.
-        crop  : After scaling, a central crop of this size is taken.
-        mean  : Subtracted from the image
-        '''
+        """Crops, scales, and normalizes the given image.
+
+        Args:
+            img: The image to be processed.
+            scale: The image wil be first scaled to this size.
+            isotropic: If isotropic is true, the smaller side is rescaled to this, preserving the aspect ratio.
+            crop: After scaling, a central crop of this size is taken.
+            mean: Subtracted mean from the image.
+
+        Returns:
+            The image submited processed with the submitted parameters and the mean subtracted.
+        """
         # Rescale
         if isotropic:
             img_shape = tf.to_float(tf.shape(img)[:2])
@@ -69,7 +79,13 @@ class NSFWClassifier(Classifier):
         return tf.to_float(img) - mean
 
     def classify(self, image_data):
-        # Create an image producer (loads and processes images in parallel)
+        """Classify an image.
+
+                Args:
+                    image_data: An image bytes to classify.
+                Returns:
+                    The classifaction result.
+        """
         img = self.load_image(image_data, True)
         # Process the image
         processed_img = self.process_image(img=img,
@@ -77,7 +93,6 @@ class NSFWClassifier(Classifier):
                                            isotropic=self._spec.isotropic,
                                            crop=self._spec.crop_size,
                                            mean=self._spec.mean)
-
 
         # Process Image
         image_array = self._sess.run(processed_img)
@@ -98,7 +113,10 @@ class NSFWClassifier(Classifier):
 
 
 class SafeImageClassifier(Classifier):
-    """Classifier Object that classify a image if its Safe or Not."""
+    """SafeImage Classifier.
+
+    This class classify an image if it has Safe Content or Not.
+    """
 
     def __init__(self):
         """Object constructor. Load the trained model graph to classify images."""
@@ -110,14 +128,24 @@ class SafeImageClassifier(Classifier):
                             in tf.gfile.GFile(os.path.dirname(__file__) + "/labels.txt")]
 
     def load_session_graph(self, graph_path):
-        """ Loads the graph model."""
+        """ Loads the graph model.
+
+        Args:
+            graph_path: Path to the graph model to be loaded.
+        """
         with tf.gfile.FastGFile(graph_path, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
             _ = tf.import_graph_def(graph_def, name='')
 
     def classify(self, image_data):
-        """ Classify the image_data if its Safe or Not. Returning the score for each label."""
+        """Classify an image.
+
+                Args:
+                    image_data: An image bytes to classify.
+                Returns:
+                    The Classifaction result.
+        """
         image = Image.open(BytesIO(image_data))
         image_array = image.convert('RGB')
         predictions = self.sess.run(self.softmax_tensor, {'DecodeJpeg:0': image_array})

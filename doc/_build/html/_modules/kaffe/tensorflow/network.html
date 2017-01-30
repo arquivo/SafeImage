@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kaffe.tensorflow.network &mdash; SafeImage 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="SafeImage 1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SafeImage
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="simple">
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">SafeImage</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>kaffe.tensorflow.network</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for kaffe.tensorflow.network</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+
+<span class="n">DEFAULT_PADDING</span> <span class="o">=</span> <span class="s1">&#39;SAME&#39;</span>
+
+
+<div class="viewcode-block" id="layer"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.layer">[docs]</a><span class="k">def</span> <span class="nf">layer</span><span class="p">(</span><span class="n">op</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Decorator for composable network layers.&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">layer_decorated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Automatically set a name if not provided.</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unique_name</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="c1"># Figure out the layer inputs.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terminals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;No input variables found for layer </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terminals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">layer_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">layer_input</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terminals</span><span class="p">)</span>
+        <span class="c1"># Perform the operation and get the output.</span>
+        <span class="n">layer_output</span> <span class="o">=</span> <span class="n">op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_input</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Add to layer LUT.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer_output</span>
+        <span class="c1"># This output is now the input for the next layer.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">layer_output</span><span class="p">)</span>
+        <span class="c1"># Return self for chained calls.</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">return</span> <span class="n">layer_decorated</span></div>
+
+
+<div class="viewcode-block" id="Network"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network">[docs]</a><span class="k">class</span> <span class="nc">Network</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="c1"># The input nodes for this network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
+        <span class="c1"># The current list of terminal nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Mapping from layer names to layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="c1"># If true, the resulting variables are set as trainable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="n">trainable</span>
+        <span class="c1"># Switch variable for dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_dropout</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder_with_default</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span>
+                                                       <span class="n">shape</span><span class="o">=</span><span class="p">[],</span>
+                                                       <span class="n">name</span><span class="o">=</span><span class="s1">&#39;use_dropout&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Network.setup"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Construct the network. &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Must be implemented by the subclass.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Network.load"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">ignore_missing</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load network weights.</span>
+<span class="sd">        data_path: The path to the numpy-serialized network weights</span>
+<span class="sd">        session: The current TensorFlow session</span>
+<span class="sd">        ignore_missing: If true, serialized weights for missing layers are ignored.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">data_dict</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">op_name</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">op_name</span><span class="p">,</span> <span class="n">reuse</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">[</span><span class="n">op_name</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">var</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+                        <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_missing</span><span class="p">:</span>
+                            <span class="k">raise</span></div>
+
+<div class="viewcode-block" id="Network.feed"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.feed">[docs]</a>    <span class="k">def</span> <span class="nf">feed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set the input(s) for the next operation by replacing the terminal nodes.</span>
+<span class="sd">        The arguments can be either layer names or the actual layers.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fed_layer</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fed_layer</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">fed_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">fed_layer</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Unknown layer name fed: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fed_layer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terminals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fed_layer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Network.get_output"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.get_output">[docs]</a>    <span class="k">def</span> <span class="nf">get_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns the current network output.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Network.get_unique_name"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.get_unique_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_unique_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns an index-suffixed unique name for the given prefix.</span>
+<span class="sd">        This is used for auto-generating layer names based on the type-prefix.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">ident</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">ident</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Network.make_var"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.make_var">[docs]</a>    <span class="k">def</span> <span class="nf">make_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Creates a new TensorFlow variable.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Network.validate_padding"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.validate_padding">[docs]</a>    <span class="k">def</span> <span class="nf">validate_padding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Verifies that the padding is one of the supported ones.&#39;&#39;&#39;</span>
+        <span class="k">assert</span> <span class="n">padding</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;SAME&#39;</span><span class="p">,</span> <span class="s1">&#39;VALID&#39;</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.conv"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.conv">[docs]</a>    <span class="k">def</span> <span class="nf">conv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="nb">input</span><span class="p">,</span>
+             <span class="n">k_h</span><span class="p">,</span>
+             <span class="n">k_w</span><span class="p">,</span>
+             <span class="n">c_o</span><span class="p">,</span>
+             <span class="n">s_h</span><span class="p">,</span>
+             <span class="n">s_w</span><span class="p">,</span>
+             <span class="n">name</span><span class="p">,</span>
+             <span class="n">relu</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+             <span class="n">padding</span><span class="o">=</span><span class="n">DEFAULT_PADDING</span><span class="p">,</span>
+             <span class="n">group</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+             <span class="n">biased</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="c1"># Verify that the padding is acceptable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_padding</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span>
+        <span class="c1"># Get the number of channels in the input</span>
+        <span class="n">c_i</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Verify that the grouping parameter is valid</span>
+        <span class="k">assert</span> <span class="n">c_i</span> <span class="o">%</span> <span class="n">group</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">c_o</span> <span class="o">%</span> <span class="n">group</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="c1"># Convolution for a given input and kernel</span>
+        <span class="n">convolve</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">s_h</span><span class="p">,</span> <span class="n">s_w</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+            <span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">k_h</span><span class="p">,</span> <span class="n">k_w</span><span class="p">,</span> <span class="n">c_i</span> <span class="o">/</span> <span class="n">group</span><span class="p">,</span> <span class="n">c_o</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># This is the common-case. Convolve the input without any further complications.</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">convolve</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Split the input into groups and then convolve each of them independently</span>
+                <span class="n">input_groups</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="nb">input</span><span class="p">)</span>
+                <span class="n">kernel_groups</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
+                <span class="n">output_groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">convolve</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">input_groups</span><span class="p">,</span> <span class="n">kernel_groups</span><span class="p">)]</span>
+                <span class="c1"># Concatenate the groups</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">output_groups</span><span class="p">)</span>
+            <span class="c1"># Add the biases</span>
+            <span class="k">if</span> <span class="n">biased</span><span class="p">:</span>
+                <span class="n">biases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;biases&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">c_o</span><span class="p">])</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">bias_add</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">biases</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">relu</span><span class="p">:</span>
+                <span class="c1"># ReLU non-linearity</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">output</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.relu"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.relu">[docs]</a>    <span class="k">def</span> <span class="nf">relu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.max_pool"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.max_pool">[docs]</a>    <span class="k">def</span> <span class="nf">max_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">k_h</span><span class="p">,</span> <span class="n">k_w</span><span class="p">,</span> <span class="n">s_h</span><span class="p">,</span> <span class="n">s_w</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">DEFAULT_PADDING</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_padding</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span>
+                              <span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">k_h</span><span class="p">,</span> <span class="n">k_w</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                              <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">s_h</span><span class="p">,</span> <span class="n">s_w</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                              <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+                              <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.avg_pool"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.avg_pool">[docs]</a>    <span class="k">def</span> <span class="nf">avg_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">k_h</span><span class="p">,</span> <span class="n">k_w</span><span class="p">,</span> <span class="n">s_h</span><span class="p">,</span> <span class="n">s_w</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">DEFAULT_PADDING</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_padding</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">avg_pool</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span>
+                              <span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">k_h</span><span class="p">,</span> <span class="n">k_w</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                              <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">s_h</span><span class="p">,</span> <span class="n">s_w</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                              <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+                              <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.lrn"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.lrn">[docs]</a>    <span class="k">def</span> <span class="nf">lrn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">local_response_normalization</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span>
+                                                  <span class="n">depth_radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+                                                  <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                                                  <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+                                                  <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span>
+                                                  <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.concat"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.concat">[docs]</a>    <span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">concat_dim</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.add"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.fc"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.fc">[docs]</a>    <span class="k">def</span> <span class="nf">fc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">num_out</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">relu</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+            <span class="n">input_shape</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">input_shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="c1"># The input is spatial. Vectorize it first.</span>
+                <span class="n">dim</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">as_list</span><span class="p">():</span>
+                    <span class="n">dim</span> <span class="o">*=</span> <span class="n">d</span>
+                <span class="n">feed_in</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dim</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">feed_in</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">dim</span><span class="p">,</span> <span class="n">num_out</span><span class="p">])</span>
+            <span class="n">biases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;biases&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">num_out</span><span class="p">])</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu_layer</span> <span class="k">if</span> <span class="n">relu</span> <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">xw_plus_b</span>
+            <span class="n">fc</span> <span class="o">=</span> <span class="n">op</span><span class="p">(</span><span class="n">feed_in</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">biases</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">fc</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.softmax"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.softmax">[docs]</a>    <span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_shape</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># For certain models (like NiN), the singleton spatial dimensions</span>
+            <span class="c1"># need to be explicitly squeezed, since they&#39;re not broadcast-able</span>
+            <span class="c1"># in TensorFlow&#39;s NHWC ordering (unlike Caffe&#39;s NCHW).</span>
+            <span class="k">if</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">squeeze_dims</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Rank 2 tensor input expected for softmax!&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.batch_normalization"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.batch_normalization">[docs]</a>    <span class="k">def</span> <span class="nf">batch_normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scale_offset</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">relu</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="c1"># NOTE: Currently, only inference is supported</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">as</span> <span class="n">scope</span><span class="p">:</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">input</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="n">scale_offset</span><span class="p">:</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">scale</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">batch_normalization</span><span class="p">(</span>
+                <span class="nb">input</span><span class="p">,</span>
+                <span class="n">mean</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">),</span>
+                <span class="n">variance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">make_var</span><span class="p">(</span><span class="s1">&#39;variance&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">),</span>
+                <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+                <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+                <span class="c1"># TODO: This is the default Caffe batch norm eps</span>
+                <span class="c1"># Get the actual eps from parameters</span>
+                <span class="n">variance_epsilon</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">relu</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">output</span></div>
+
+    <span class="nd">@layer</span>
+<div class="viewcode-block" id="Network.dropout"><a class="viewcode-back" href="../../../kaffe.tensorflow.html#kaffe.tensorflow.network.Network.dropout">[docs]</a>    <span class="k">def</span> <span class="nf">dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">keep_prob</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_dropout</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_dropout</span> <span class="o">*</span> <span class="n">keep_prob</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">keep</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Bicho.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

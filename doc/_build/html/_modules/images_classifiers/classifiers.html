@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>images_classifiers.classifiers &mdash; SafeImage 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="SafeImage 1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SafeImage
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="simple">
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">SafeImage</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>images_classifiers.classifiers</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for images_classifiers.classifiers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span> <span class="nn">classifier</span> <span class="kn">import</span> <span class="n">Classifier</span>
+<span class="kn">from</span> <span class="nn">images_classifiers</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Daniel Bicho&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;daniel.bicho@fccn.pt&quot;</span>
+
+
+<div class="viewcode-block" id="NSFWClassifier"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.NSFWClassifier">[docs]</a><span class="k">class</span> <span class="nc">NSFWClassifier</span><span class="p">(</span><span class="n">Classifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Not Safe For Work Image (NFSFW) Classifier.</span>
+
+<span class="sd">    This class classify an image if its NSFW or not.</span>
+<span class="sd">    It uses the open sourced NSFW classifier model used by Yahoo converted to a Tensorflow network.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Object constructor. Load the trained model graph to classify images.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Get the data specifications for the ResNet_50_nsfw model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">get_data_spec</span><span class="p">(</span><span class="n">model_class</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">ResNet_50_1by2_nsfw</span><span class="p">)</span>
+
+        <span class="c1"># Create a placeholder for the input image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input_node</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                                          <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">crop_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">crop_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">channels</span><span class="p">))</span>
+
+        <span class="c1"># Construct the network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ResNet_50_1by2_nsfw</span><span class="p">({</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_node</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+        <span class="c1"># Load the converted parameters</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Loading the model&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/nsfw.npy&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span><span class="p">)</span>
+
+    <span class="c1"># TODO add support for more image types</span>
+<div class="viewcode-block" id="NSFWClassifier.load_image"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.NSFWClassifier.load_image">[docs]</a>    <span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">,</span> <span class="n">is_jpeg</span><span class="p">):</span>
+        <span class="c1"># Decode the image data</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">decode_jpeg</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">expects_bgr</span><span class="p">:</span>
+            <span class="c1"># Convert from RGB channel ordering to BGR</span>
+            <span class="c1"># This matches, for instance, how OpenCV orders the channels.</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">img</span></div>
+
+<div class="viewcode-block" id="NSFWClassifier.process_image"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.NSFWClassifier.process_image">[docs]</a>    <span class="k">def</span> <span class="nf">process_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">isotropic</span><span class="p">,</span> <span class="n">crop</span><span class="p">,</span> <span class="n">mean</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Crops, scales, and normalizes the given image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img: The image to be processed.</span>
+<span class="sd">            scale: The image wil be first scaled to this size.</span>
+<span class="sd">            isotropic: If isotropic is true, the smaller side is rescaled to this, preserving the aspect ratio.</span>
+<span class="sd">            crop: After scaling, a central crop of this size is taken.</span>
+<span class="sd">            mean: Subtracted mean from the image.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The image submited processed with the submitted parameters and the mean subtracted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Rescale</span>
+        <span class="k">if</span> <span class="n">isotropic</span><span class="p">:</span>
+            <span class="n">img_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">img</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">min_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">img_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">img_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">new_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_int32</span><span class="p">((</span><span class="n">scale</span> <span class="o">/</span> <span class="n">min_length</span><span class="p">)</span> <span class="o">*</span> <span class="n">img_shape</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pack</span><span class="p">([</span><span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">])</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">resize_images</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">new_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">new_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1"># Center crop</span>
+        <span class="c1"># Use the slice workaround until crop_to_bounding_box supports deferred tensor shapes</span>
+        <span class="c1"># See: https://github.com/tensorflow/tensorflow/issues/521</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_shape</span> <span class="o">-</span> <span class="n">crop</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">begin</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">pack</span><span class="p">([</span><span class="n">offset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">offset</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">pack</span><span class="p">([</span><span class="n">crop</span><span class="p">,</span> <span class="n">crop</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1"># Mean subtraction</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">to_float</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="o">-</span> <span class="n">mean</span></div>
+
+<div class="viewcode-block" id="NSFWClassifier.classify"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.NSFWClassifier.classify">[docs]</a>    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Classify an image.</span>
+
+<span class="sd">                Args:</span>
+<span class="sd">                    image_data: An image bytes to classify.</span>
+<span class="sd">                Returns:</span>
+<span class="sd">                    The classifaction result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="c1"># Process the image</span>
+        <span class="n">processed_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_image</span><span class="p">(</span><span class="n">img</span><span class="o">=</span><span class="n">img</span><span class="p">,</span>
+                                           <span class="n">scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">scale_size</span><span class="p">,</span>
+                                           <span class="n">isotropic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">isotropic</span><span class="p">,</span>
+                                           <span class="n">crop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">crop_size</span><span class="p">,</span>
+                                           <span class="n">mean</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+
+        <span class="c1"># Process Image</span>
+        <span class="n">image_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">processed_img</span><span class="p">)</span>
+
+        <span class="c1"># Perform a forward pass through the network to get the class probabilities</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Classifying&#39;</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">get_output</span><span class="p">(),</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_node</span><span class="p">:</span> <span class="p">[</span><span class="n">image_array</span><span class="p">]})</span>
+
+        <span class="c1"># Get a list of class labels</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/labels.txt&quot;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+            <span class="n">class_labels</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">,</span> <span class="n">infile</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">class_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">result</span></div></div>
+
+
+<div class="viewcode-block" id="SafeImageClassifier"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.SafeImageClassifier">[docs]</a><span class="k">class</span> <span class="nc">SafeImageClassifier</span><span class="p">(</span><span class="n">Classifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;SafeImage Classifier.</span>
+
+<span class="sd">    This class classify an image if it has Safe Content or Not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Object constructor. Load the trained model graph to classify images.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_session_graph</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/retrained_graph.pb&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">softmax_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_tensor_by_name</span><span class="p">(</span><span class="s1">&#39;final_result:0&#39;</span><span class="p">)</span>
+        <span class="c1"># Loads label file, strips off carriage return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span>
+                            <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/labels.txt&quot;</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="SafeImageClassifier.load_session_graph"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.SafeImageClassifier.load_session_graph">[docs]</a>    <span class="k">def</span> <span class="nf">load_session_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Loads the graph model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            graph_path: Path to the graph model to be loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">FastGFile</span><span class="p">(</span><span class="n">graph_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">graph_def</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">GraphDef</span><span class="p">()</span>
+            <span class="n">graph_def</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">import_graph_def</span><span class="p">(</span><span class="n">graph_def</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SafeImageClassifier.classify"><a class="viewcode-back" href="../../images_classifiers.html#images_classifiers.classifiers.SafeImageClassifier.classify">[docs]</a>    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Classify an image.</span>
+
+<span class="sd">                Args:</span>
+<span class="sd">                    image_data: An image bytes to classify.</span>
+<span class="sd">                Returns:</span>
+<span class="sd">                    The Classifaction result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_data</span><span class="p">))</span>
+        <span class="n">image_array</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">softmax_tensor</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;DecodeJpeg:0&#39;</span><span class="p">:</span> <span class="n">image_array</span><span class="p">})</span>
+
+        <span class="c1"># Sort to show labels of first prediction in order of confidence</span>
+        <span class="n">top_k</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]):][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">top_k</span><span class="p">:</span>
+            <span class="n">human_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_lines</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">node_id</span><span class="p">]</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">human_string</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">classifier</span> <span class="o">=</span> <span class="n">NSFWClassifier</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../static/images/NotSafe/5.jpg&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">file_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="k">print</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">file_data</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Bicho.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

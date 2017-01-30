@@ -1,0 +1,913 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kaffe package &mdash; SafeImage 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="SafeImage 1.0 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SafeImage
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="simple">
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">SafeImage</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>kaffe package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/kaffe.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kaffe-package">
+<h1>kaffe package<a class="headerlink" href="#kaffe-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="kaffe.caffe.html">kaffe.caffe package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.caffe.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.caffe.html#module-kaffe.caffe.caffepb">kaffe.caffe.caffepb module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.caffe.html#module-kaffe.caffe.resolver">kaffe.caffe.resolver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.caffe.html#module-kaffe.caffe">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kaffe.tensorflow.html">kaffe.tensorflow package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.tensorflow.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.tensorflow.html#module-kaffe.tensorflow.network">kaffe.tensorflow.network module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.tensorflow.html#module-kaffe.tensorflow.transformer">kaffe.tensorflow.transformer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kaffe.tensorflow.html#module-kaffe.tensorflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-kaffe.errors">
+<span id="kaffe-errors-module"></span><h2>kaffe.errors module<a class="headerlink" href="#module-kaffe.errors" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="kaffe.errors.KaffeError">
+<em class="property">exception </em><code class="descclassname">kaffe.errors.</code><code class="descname">KaffeError</code><a class="reference internal" href="_modules/kaffe/errors.html#KaffeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.errors.KaffeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kaffe.errors.print_stderr">
+<code class="descclassname">kaffe.errors.</code><code class="descname">print_stderr</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/errors.html#print_stderr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.errors.print_stderr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-kaffe.graph">
+<span id="kaffe-graph-module"></span><h2>kaffe.graph module<a class="headerlink" href="#module-kaffe.graph" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kaffe.graph.Graph">
+<em class="property">class </em><code class="descclassname">kaffe.graph.</code><code class="descname">Graph</code><span class="sig-paren">(</span><em>nodes=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kaffe.graph.Graph.add_node">
+<code class="descname">add_node</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.add_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.add_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Graph.compute_output_shapes">
+<code class="descname">compute_output_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.compute_output_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.compute_output_shapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Graph.get_input_nodes">
+<code class="descname">get_input_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.get_input_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.get_input_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Graph.get_node">
+<code class="descname">get_node</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.get_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.get_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Graph.get_output_nodes">
+<code class="descname">get_output_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.get_output_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.get_output_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Graph.replaced">
+<code class="descname">replaced</code><span class="sig-paren">(</span><em>new_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.replaced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.replaced" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Graph.topologically_sorted">
+<code class="descname">topologically_sorted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.topologically_sorted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.topologically_sorted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Graph.transformed">
+<code class="descname">transformed</code><span class="sig-paren">(</span><em>transformers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Graph.transformed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Graph.transformed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.graph.GraphBuilder">
+<em class="property">class </em><code class="descclassname">kaffe.graph.</code><code class="descname">GraphBuilder</code><span class="sig-paren">(</span><em>def_path</em>, <em>phase='test'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#GraphBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.GraphBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Constructs a model graph from a Caffe protocol buffer definition.</p>
+<dl class="method">
+<dt id="kaffe.graph.GraphBuilder.build">
+<code class="descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#GraphBuilder.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.GraphBuilder.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the graph from the Caffe layer definitions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.GraphBuilder.filter_layers">
+<code class="descname">filter_layers</code><span class="sig-paren">(</span><em>layers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#GraphBuilder.filter_layers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.GraphBuilder.filter_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out layers based on the current phase.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.GraphBuilder.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#GraphBuilder.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.GraphBuilder.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the layer definitions from the prototxt.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.GraphBuilder.make_input_nodes">
+<code class="descname">make_input_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#GraphBuilder.make_input_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.GraphBuilder.make_input_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create data input nodes.</p>
+<p>This method is for old-style inputs, where the input specification
+was not treated as a first-class layer in the prototext.
+Newer models use the &#8220;Input layer&#8221; type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.GraphBuilder.make_node">
+<code class="descname">make_node</code><span class="sig-paren">(</span><em>layer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#GraphBuilder.make_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.GraphBuilder.make_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a graph node for the given layer.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.graph.Node">
+<em class="property">class </em><code class="descclassname">kaffe.graph.</code><code class="descname">Node</code><span class="sig-paren">(</span><em>name</em>, <em>kind</em>, <em>layer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kaffe.graph.Node.add_child">
+<code class="descname">add_child</code><span class="sig-paren">(</span><em>child_node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Node.add_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Node.add_child" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Node.add_parent">
+<code class="descname">add_parent</code><span class="sig-paren">(</span><em>parent_node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Node.add_parent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Node.add_parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.Node.get_only_parent">
+<code class="descname">get_only_parent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#Node.get_only_parent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.Node.get_only_parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.graph.Node.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#kaffe.graph.Node.parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.graph.NodeMapper">
+<em class="property">class </em><code class="descclassname">kaffe.graph.</code><code class="descname">NodeMapper</code><span class="sig-paren">(</span><em>graph</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#NodeMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.NodeMapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kaffe.layers.NodeDispatch" title="kaffe.layers.NodeDispatch"><code class="xref py py-class docutils literal"><span class="pre">kaffe.layers.NodeDispatch</span></code></a></p>
+<dl class="method">
+<dt id="kaffe.graph.NodeMapper.commit">
+<code class="descname">commit</code><span class="sig-paren">(</span><em>mapped_chains</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#NodeMapper.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.NodeMapper.commit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.NodeMapper.map">
+<code class="descname">map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#NodeMapper.map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.NodeMapper.map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.NodeMapper.map_chain">
+<code class="descname">map_chain</code><span class="sig-paren">(</span><em>chain</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#NodeMapper.map_chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.NodeMapper.map_chain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.graph.NodeMapper.map_node">
+<code class="descname">map_node</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/graph.html#NodeMapper.map_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.graph.NodeMapper.map_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kaffe.layers">
+<span id="kaffe-layers-module"></span><h2>kaffe.layers module<a class="headerlink" href="#module-kaffe.layers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kaffe.layers.KernelParameters">
+<em class="property">class </em><code class="descclassname">kaffe.layers.</code><code class="descname">KernelParameters</code><span class="sig-paren">(</span><em>kernel_h</em>, <em>kernel_w</em>, <em>stride_h</em>, <em>stride_w</em>, <em>pad_h</em>, <em>pad_w</em><span class="sig-paren">)</span><a class="headerlink" href="#kaffe.layers.KernelParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
+<dl class="attribute">
+<dt id="kaffe.layers.KernelParameters.kernel_h">
+<code class="descname">kernel_h</code><a class="headerlink" href="#kaffe.layers.KernelParameters.kernel_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.KernelParameters.kernel_w">
+<code class="descname">kernel_w</code><a class="headerlink" href="#kaffe.layers.KernelParameters.kernel_w" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.KernelParameters.pad_h">
+<code class="descname">pad_h</code><a class="headerlink" href="#kaffe.layers.KernelParameters.pad_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.KernelParameters.pad_w">
+<code class="descname">pad_w</code><a class="headerlink" href="#kaffe.layers.KernelParameters.pad_w" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.KernelParameters.stride_h">
+<code class="descname">stride_h</code><a class="headerlink" href="#kaffe.layers.KernelParameters.stride_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.KernelParameters.stride_w">
+<code class="descname">stride_w</code><a class="headerlink" href="#kaffe.layers.KernelParameters.stride_w" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.layers.LayerAdapter">
+<em class="property">class </em><code class="descclassname">kaffe.layers.</code><code class="descname">LayerAdapter</code><span class="sig-paren">(</span><em>layer</em>, <em>kind</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/layers.html#LayerAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.LayerAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="staticmethod">
+<dt id="kaffe.layers.LayerAdapter.get_kernel_value">
+<em class="property">static </em><code class="descname">get_kernel_value</code><span class="sig-paren">(</span><em>scalar</em>, <em>repeated</em>, <em>idx</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/layers.html#LayerAdapter.get_kernel_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.LayerAdapter.get_kernel_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerAdapter.kernel_parameters">
+<code class="descname">kernel_parameters</code><a class="headerlink" href="#kaffe.layers.LayerAdapter.kernel_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerAdapter.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#kaffe.layers.LayerAdapter.parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.layers.LayerType">
+<em class="property">class </em><code class="descclassname">kaffe.layers.</code><code class="descname">LayerType</code><a class="headerlink" href="#kaffe.layers.LayerType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.AbsVal">
+<code class="descname">AbsVal</code><em class="property"> = 'AbsVal'</em><a class="headerlink" href="#kaffe.layers.LayerType.AbsVal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Accuracy">
+<code class="descname">Accuracy</code><em class="property"> = 'Accuracy'</em><a class="headerlink" href="#kaffe.layers.LayerType.Accuracy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.ArgMax">
+<code class="descname">ArgMax</code><em class="property"> = 'ArgMax'</em><a class="headerlink" href="#kaffe.layers.LayerType.ArgMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.BNLL">
+<code class="descname">BNLL</code><em class="property"> = 'BNLL'</em><a class="headerlink" href="#kaffe.layers.LayerType.BNLL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.BatchNorm">
+<code class="descname">BatchNorm</code><em class="property"> = 'BatchNorm'</em><a class="headerlink" href="#kaffe.layers.LayerType.BatchNorm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Concat">
+<code class="descname">Concat</code><em class="property"> = 'Concat'</em><a class="headerlink" href="#kaffe.layers.LayerType.Concat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.ContrastiveLoss">
+<code class="descname">ContrastiveLoss</code><em class="property"> = 'ContrastiveLoss'</em><a class="headerlink" href="#kaffe.layers.LayerType.ContrastiveLoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Convolution">
+<code class="descname">Convolution</code><em class="property"> = 'Convolution'</em><a class="headerlink" href="#kaffe.layers.LayerType.Convolution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Data">
+<code class="descname">Data</code><em class="property"> = 'Data'</em><a class="headerlink" href="#kaffe.layers.LayerType.Data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Deconvolution">
+<code class="descname">Deconvolution</code><em class="property"> = 'Deconvolution'</em><a class="headerlink" href="#kaffe.layers.LayerType.Deconvolution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Dropout">
+<code class="descname">Dropout</code><em class="property"> = 'Dropout'</em><a class="headerlink" href="#kaffe.layers.LayerType.Dropout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.DummyData">
+<code class="descname">DummyData</code><em class="property"> = 'DummyData'</em><a class="headerlink" href="#kaffe.layers.LayerType.DummyData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Eltwise">
+<code class="descname">Eltwise</code><em class="property"> = 'Eltwise'</em><a class="headerlink" href="#kaffe.layers.LayerType.Eltwise" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.EuclideanLoss">
+<code class="descname">EuclideanLoss</code><em class="property"> = 'EuclideanLoss'</em><a class="headerlink" href="#kaffe.layers.LayerType.EuclideanLoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Exp">
+<code class="descname">Exp</code><em class="property"> = 'Exp'</em><a class="headerlink" href="#kaffe.layers.LayerType.Exp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Flatten">
+<code class="descname">Flatten</code><em class="property"> = 'Flatten'</em><a class="headerlink" href="#kaffe.layers.LayerType.Flatten" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.HDF5Data">
+<code class="descname">HDF5Data</code><em class="property"> = 'HDF5Data'</em><a class="headerlink" href="#kaffe.layers.LayerType.HDF5Data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.HDF5Output">
+<code class="descname">HDF5Output</code><em class="property"> = 'HDF5Output'</em><a class="headerlink" href="#kaffe.layers.LayerType.HDF5Output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.HingeLoss">
+<code class="descname">HingeLoss</code><em class="property"> = 'HingeLoss'</em><a class="headerlink" href="#kaffe.layers.LayerType.HingeLoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Im2col">
+<code class="descname">Im2col</code><em class="property"> = 'Im2col'</em><a class="headerlink" href="#kaffe.layers.LayerType.Im2col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.ImageData">
+<code class="descname">ImageData</code><em class="property"> = 'ImageData'</em><a class="headerlink" href="#kaffe.layers.LayerType.ImageData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.InfogainLoss">
+<code class="descname">InfogainLoss</code><em class="property"> = 'InfogainLoss'</em><a class="headerlink" href="#kaffe.layers.LayerType.InfogainLoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.InnerProduct">
+<code class="descname">InnerProduct</code><em class="property"> = 'InnerProduct'</em><a class="headerlink" href="#kaffe.layers.LayerType.InnerProduct" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Input">
+<code class="descname">Input</code><em class="property"> = 'Input'</em><a class="headerlink" href="#kaffe.layers.LayerType.Input" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.LRN">
+<code class="descname">LRN</code><em class="property"> = 'LRN'</em><a class="headerlink" href="#kaffe.layers.LayerType.LRN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.MVN">
+<code class="descname">MVN</code><em class="property"> = 'MVN'</em><a class="headerlink" href="#kaffe.layers.LayerType.MVN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.MemoryData">
+<code class="descname">MemoryData</code><em class="property"> = 'MemoryData'</em><a class="headerlink" href="#kaffe.layers.LayerType.MemoryData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.MultinomialLogisticLoss">
+<code class="descname">MultinomialLogisticLoss</code><em class="property"> = 'MultinomialLogisticLoss'</em><a class="headerlink" href="#kaffe.layers.LayerType.MultinomialLogisticLoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Pooling">
+<code class="descname">Pooling</code><em class="property"> = 'Pooling'</em><a class="headerlink" href="#kaffe.layers.LayerType.Pooling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Power">
+<code class="descname">Power</code><em class="property"> = 'Power'</em><a class="headerlink" href="#kaffe.layers.LayerType.Power" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.ReLU">
+<code class="descname">ReLU</code><em class="property"> = 'ReLU'</em><a class="headerlink" href="#kaffe.layers.LayerType.ReLU" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Scale">
+<code class="descname">Scale</code><em class="property"> = 'Scale'</em><a class="headerlink" href="#kaffe.layers.LayerType.Scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Sigmoid">
+<code class="descname">Sigmoid</code><em class="property"> = 'Sigmoid'</em><a class="headerlink" href="#kaffe.layers.LayerType.Sigmoid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.SigmoidCrossEntropyLoss">
+<code class="descname">SigmoidCrossEntropyLoss</code><em class="property"> = 'SigmoidCrossEntropyLoss'</em><a class="headerlink" href="#kaffe.layers.LayerType.SigmoidCrossEntropyLoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Silence">
+<code class="descname">Silence</code><em class="property"> = 'Silence'</em><a class="headerlink" href="#kaffe.layers.LayerType.Silence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Slice">
+<code class="descname">Slice</code><em class="property"> = 'Slice'</em><a class="headerlink" href="#kaffe.layers.LayerType.Slice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Softmax">
+<code class="descname">Softmax</code><em class="property"> = 'Softmax'</em><a class="headerlink" href="#kaffe.layers.LayerType.Softmax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.SoftmaxWithLoss">
+<code class="descname">SoftmaxWithLoss</code><em class="property"> = 'SoftmaxWithLoss'</em><a class="headerlink" href="#kaffe.layers.LayerType.SoftmaxWithLoss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Split">
+<code class="descname">Split</code><em class="property"> = 'Split'</em><a class="headerlink" href="#kaffe.layers.LayerType.Split" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.TanH">
+<code class="descname">TanH</code><em class="property"> = 'TanH'</em><a class="headerlink" href="#kaffe.layers.LayerType.TanH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.Threshold">
+<code class="descname">Threshold</code><em class="property"> = 'Threshold'</em><a class="headerlink" href="#kaffe.layers.LayerType.Threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.layers.LayerType.WindowData">
+<code class="descname">WindowData</code><em class="property"> = 'WindowData'</em><a class="headerlink" href="#kaffe.layers.LayerType.WindowData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.layers.NodeDispatch">
+<em class="property">class </em><code class="descclassname">kaffe.layers.</code><code class="descname">NodeDispatch</code><a class="reference internal" href="_modules/kaffe/layers.html#NodeDispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.NodeDispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kaffe.layers.NodeDispatch.get_handler">
+<code class="descname">get_handler</code><span class="sig-paren">(</span><em>node_kind</em>, <em>prefix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/layers.html#NodeDispatch.get_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.NodeDispatch.get_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="kaffe.layers.NodeDispatch.get_handler_name">
+<em class="property">static </em><code class="descname">get_handler_name</code><span class="sig-paren">(</span><em>node_kind</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/layers.html#NodeDispatch.get_handler_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.NodeDispatch.get_handler_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="kaffe.layers.NodeDispatchError">
+<em class="property">exception </em><code class="descclassname">kaffe.layers.</code><code class="descname">NodeDispatchError</code><a class="reference internal" href="_modules/kaffe/layers.html#NodeDispatchError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.NodeDispatchError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kaffe.errors.KaffeError" title="kaffe.errors.KaffeError"><code class="xref py py-class docutils literal"><span class="pre">kaffe.errors.KaffeError</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.layers.NodeKind">
+<em class="property">class </em><code class="descclassname">kaffe.layers.</code><code class="descname">NodeKind</code><a class="reference internal" href="_modules/kaffe/layers.html#NodeKind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.NodeKind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kaffe.layers.LayerType" title="kaffe.layers.LayerType"><code class="xref py py-class docutils literal"><span class="pre">kaffe.layers.LayerType</span></code></a></p>
+<dl class="staticmethod">
+<dt id="kaffe.layers.NodeKind.compute_output_shape">
+<em class="property">static </em><code class="descname">compute_output_shape</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/layers.html#NodeKind.compute_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.NodeKind.compute_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="kaffe.layers.NodeKind.map_raw_kind">
+<em class="property">static </em><code class="descname">map_raw_kind</code><span class="sig-paren">(</span><em>kind</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/layers.html#NodeKind.map_raw_kind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.layers.NodeKind.map_raw_kind" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kaffe.shapes">
+<span id="kaffe-shapes-module"></span><h2>kaffe.shapes module<a class="headerlink" href="#module-kaffe.shapes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kaffe.shapes.TensorShape">
+<em class="property">class </em><code class="descclassname">kaffe.shapes.</code><code class="descname">TensorShape</code><span class="sig-paren">(</span><em>batch_size</em>, <em>channels</em>, <em>height</em>, <em>width</em><span class="sig-paren">)</span><a class="headerlink" href="#kaffe.shapes.TensorShape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
+<dl class="attribute">
+<dt id="kaffe.shapes.TensorShape.batch_size">
+<code class="descname">batch_size</code><a class="headerlink" href="#kaffe.shapes.TensorShape.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.shapes.TensorShape.channels">
+<code class="descname">channels</code><a class="headerlink" href="#kaffe.shapes.TensorShape.channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.shapes.TensorShape.height">
+<code class="descname">height</code><a class="headerlink" href="#kaffe.shapes.TensorShape.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kaffe.shapes.TensorShape.width">
+<code class="descname">width</code><a class="headerlink" href="#kaffe.shapes.TensorShape.width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.get_filter_output_shape">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">get_filter_output_shape</code><span class="sig-paren">(</span><em>i_h</em>, <em>i_w</em>, <em>params</em>, <em>round_func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#get_filter_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.get_filter_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.get_strided_kernel_output_shape">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">get_strided_kernel_output_shape</code><span class="sig-paren">(</span><em>node</em>, <em>round_func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#get_strided_kernel_output_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.get_strided_kernel_output_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_concat">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_concat</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_concat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_convolution">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_convolution</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_convolution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_data">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_data</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_identity">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_identity</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_identity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_inner_product">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_inner_product</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_inner_product"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_inner_product" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_mem_data">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_mem_data</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_mem_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_mem_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_not_implemented">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_not_implemented</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_not_implemented"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_not_implemented" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_pool">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_pool</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_pool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_pool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="kaffe.shapes.shape_scalar">
+<code class="descclassname">kaffe.shapes.</code><code class="descname">shape_scalar</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/shapes.html#shape_scalar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.shapes.shape_scalar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-kaffe.transformers">
+<span id="kaffe-transformers-module"></span><h2>kaffe.transformers module<a class="headerlink" href="#module-kaffe.transformers" title="Permalink to this headline">¶</a></h2>
+<p>A collection of graph transforms.</p>
+<p>A transformer is a callable that accepts a graph and returns a transformed version.</p>
+<dl class="class">
+<dt id="kaffe.transformers.BatchNormPreprocessor">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">BatchNormPreprocessor</code><a class="reference internal" href="_modules/kaffe/transformers.html#BatchNormPreprocessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.BatchNormPreprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Prescale batch normalization parameters.
+Concatenate gamma (scale) and beta (bias) terms if set.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.transformers.BatchNormScaleBiasFuser">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">BatchNormScaleBiasFuser</code><a class="reference internal" href="_modules/kaffe/transformers.html#BatchNormScaleBiasFuser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.BatchNormScaleBiasFuser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kaffe.transformers.SubNodeFuser" title="kaffe.transformers.SubNodeFuser"><code class="xref py py-class docutils literal"><span class="pre">kaffe.transformers.SubNodeFuser</span></code></a></p>
+<p>The original batch normalization paper includes two learned
+parameters: a scaling factor gamma and a bias eta.
+Caffe&#8217;s implementation does not include these two. However, it is commonly
+replicated by adding a scaling+bias layer immidiately after the batch norm.</p>
+<p>This fuser merges the scaling+bias layer with the batch norm.</p>
+<dl class="method">
+<dt id="kaffe.transformers.BatchNormScaleBiasFuser.is_eligible_pair">
+<code class="descname">is_eligible_pair</code><span class="sig-paren">(</span><em>parent</em>, <em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#BatchNormScaleBiasFuser.is_eligible_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.BatchNormScaleBiasFuser.is_eligible_pair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.BatchNormScaleBiasFuser.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>parent</em>, <em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#BatchNormScaleBiasFuser.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.BatchNormScaleBiasFuser.merge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.transformers.DataInjector">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">DataInjector</code><span class="sig-paren">(</span><em>def_path</em>, <em>data_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataInjector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataInjector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Associates parameters loaded from a .caffemodel file with their corresponding nodes.</p>
+<dl class="method">
+<dt id="kaffe.transformers.DataInjector.adjust_parameters">
+<code class="descname">adjust_parameters</code><span class="sig-paren">(</span><em>node</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataInjector.adjust_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataInjector.adjust_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.DataInjector.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataInjector.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataInjector.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.DataInjector.load_using_caffe">
+<code class="descname">load_using_caffe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataInjector.load_using_caffe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataInjector.load_using_caffe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.DataInjector.load_using_pb">
+<code class="descname">load_using_pb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataInjector.load_using_pb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataInjector.load_using_pb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.DataInjector.normalize_pb_data">
+<code class="descname">normalize_pb_data</code><span class="sig-paren">(</span><em>layer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataInjector.normalize_pb_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataInjector.normalize_pb_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.transformers.DataReshaper">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">DataReshaper</code><span class="sig-paren">(</span><em>mapping</em>, <em>replace=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataReshaper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataReshaper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="kaffe.transformers.DataReshaper.has_spatial_parent">
+<code class="descname">has_spatial_parent</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataReshaper.has_spatial_parent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataReshaper.has_spatial_parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.DataReshaper.map">
+<code class="descname">map</code><span class="sig-paren">(</span><em>node_kind</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#DataReshaper.map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.DataReshaper.map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.transformers.NodeRenamer">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">NodeRenamer</code><span class="sig-paren">(</span><em>renamer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#NodeRenamer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.NodeRenamer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Renames nodes in the graph using a given unary function that
+accepts a node and returns its new name.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.transformers.ParameterNamer">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">ParameterNamer</code><a class="reference internal" href="_modules/kaffe/transformers.html#ParameterNamer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.ParameterNamer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Convert layer data arrays to a dictionary mapping parameter names to their values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.transformers.ReLUFuser">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">ReLUFuser</code><span class="sig-paren">(</span><em>allowed_parent_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#ReLUFuser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.ReLUFuser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#kaffe.transformers.SubNodeFuser" title="kaffe.transformers.SubNodeFuser"><code class="xref py py-class docutils literal"><span class="pre">kaffe.transformers.SubNodeFuser</span></code></a></p>
+<p>Fuses rectified linear units with their parent nodes.</p>
+<dl class="method">
+<dt id="kaffe.transformers.ReLUFuser.is_eligible_pair">
+<code class="descname">is_eligible_pair</code><span class="sig-paren">(</span><em>parent</em>, <em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#ReLUFuser.is_eligible_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.ReLUFuser.is_eligible_pair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.ReLUFuser.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>parent</em>, <em>_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#ReLUFuser.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.ReLUFuser.merge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kaffe.transformers.SubNodeFuser">
+<em class="property">class </em><code class="descclassname">kaffe.transformers.</code><code class="descname">SubNodeFuser</code><a class="reference internal" href="_modules/kaffe/transformers.html#SubNodeFuser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.SubNodeFuser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>An abstract helper for merging a single-child with its single-parent.</p>
+<dl class="method">
+<dt id="kaffe.transformers.SubNodeFuser.is_eligible_pair">
+<code class="descname">is_eligible_pair</code><span class="sig-paren">(</span><em>parent</em>, <em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#SubNodeFuser.is_eligible_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.SubNodeFuser.is_eligible_pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if this parent/child pair is eligible for fusion.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kaffe.transformers.SubNodeFuser.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>parent</em>, <em>child</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kaffe/transformers.html#SubNodeFuser.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kaffe.transformers.SubNodeFuser.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge the child node into the parent.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kaffe">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-kaffe" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Bicho.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

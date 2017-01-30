@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>kaffe.graph &mdash; SafeImage 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="SafeImage 1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SafeImage
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="simple">
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">SafeImage</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>kaffe.graph</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for kaffe.graph</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="kn">import</span> <span class="n">text_format</span>
+
+<span class="kn">from</span> <span class="nn">.caffe</span> <span class="kn">import</span> <span class="n">get_caffe_resolver</span>
+<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">KaffeError</span><span class="p">,</span> <span class="n">print_stderr</span>
+<span class="kn">from</span> <span class="nn">.layers</span> <span class="kn">import</span> <span class="n">LayerAdapter</span><span class="p">,</span> <span class="n">LayerType</span><span class="p">,</span> <span class="n">NodeKind</span><span class="p">,</span> <span class="n">NodeDispatch</span>
+<span class="kn">from</span> <span class="nn">.shapes</span> <span class="kn">import</span> <span class="n">TensorShape</span>
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">kind</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer</span> <span class="o">=</span> <span class="n">LayerAdapter</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span> <span class="k">if</span> <span class="n">layer</span> <span class="k">else</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_shape</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Node.add_parent"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Node.add_parent">[docs]</a>    <span class="k">def</span> <span class="nf">add_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_node</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">parent_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parent_node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">parent_node</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.add_child"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Node.add_child">[docs]</a>    <span class="k">def</span> <span class="nf">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child_node</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">child_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">child_node</span><span class="o">.</span><span class="n">parents</span><span class="p">:</span>
+            <span class="n">child_node</span><span class="o">.</span><span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.get_only_parent"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Node.get_only_parent">[docs]</a>    <span class="k">def</span> <span class="nf">get_only_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Node (</span><span class="si">%s</span><span class="s1">) expected to have 1 parent. Found </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">parameters</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">] </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> (0x</span><span class="si">%x</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Graph"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph">[docs]</a><span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_lut</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+<div class="viewcode-block" id="Graph.add_node"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.add_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_lut</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span></div>
+
+<div class="viewcode-block" id="Graph.get_node"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.get_node">[docs]</a>    <span class="k">def</span> <span class="nf">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_lut</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Layer not found: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Graph.get_input_nodes"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.get_input_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_input_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Graph.get_output_nodes"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.get_output_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Graph.topologically_sorted"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.topologically_sorted">[docs]</a>    <span class="k">def</span> <span class="nf">topologically_sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sorted_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">unsorted_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">temp_marked</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">perm_marked</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">visit</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">temp_marked</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Graph is not a DAG.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">perm_marked</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">temp_marked</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                <span class="n">visit</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="n">perm_marked</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="n">temp_marked</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="n">sorted_nodes</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">unsorted_nodes</span><span class="p">):</span>
+            <span class="n">visit</span><span class="p">(</span><span class="n">unsorted_nodes</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">sorted_nodes</span></div>
+
+<div class="viewcode-block" id="Graph.compute_output_shapes"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.compute_output_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">compute_output_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sorted_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topologically_sorted</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">sorted_nodes</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">output_shape</span> <span class="o">=</span> <span class="n">TensorShape</span><span class="p">(</span><span class="o">*</span><span class="n">NodeKind</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">node</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Graph.replaced"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.replaced">[docs]</a>    <span class="k">def</span> <span class="nf">replaced</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_nodes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Graph</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Graph.transformed"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.Graph.transformed">[docs]</a>    <span class="k">def</span> <span class="nf">transformed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformers</span><span class="p">):</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">for</span> <span class="n">transformer</span> <span class="ow">in</span> <span class="n">transformers</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">transformer</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Transformer failed: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transformer</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">Graph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">graph</span></div>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_lut</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hdr</span> <span class="o">=</span> <span class="s1">&#39;{:&lt;20} {:&lt;30} {:&gt;20} {:&gt;20}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Param&#39;</span><span class="p">,</span> <span class="s1">&#39;Output&#39;</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">hdr</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">94</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topologically_sorted</span><span class="p">():</span>
+            <span class="c1"># If the node has learned parameters, display the first one&#39;s shape.</span>
+            <span class="c1"># In case of convolutions, this corresponds to the weights.</span>
+            <span class="n">data_shape</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">data</span> <span class="k">else</span> <span class="s1">&#39;--&#39;</span>
+            <span class="n">out_shape</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">output_shape</span> <span class="ow">or</span> <span class="s1">&#39;--&#39;</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;{:&lt;20} {:&lt;30} {:&gt;20} {:&gt;20}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data_shape</span><span class="p">,</span>
+                                                          <span class="nb">tuple</span><span class="p">(</span><span class="n">out_shape</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GraphBuilder"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.GraphBuilder">[docs]</a><span class="k">class</span> <span class="nc">GraphBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Constructs a model graph from a Caffe protocol buffer definition.&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">def_path</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        def_path: Path to the model definition (.prototxt)</span>
+<span class="sd">        data_path: Path to the model data (.caffemodel)</span>
+<span class="sd">        phase: Either &#39;test&#39; or &#39;train&#39;. Used for filtering phase-specific nodes.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">def_path</span> <span class="o">=</span> <span class="n">def_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GraphBuilder.load"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.GraphBuilder.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load the layer definitions from the prototxt.&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">get_caffe_resolver</span><span class="p">()</span><span class="o">.</span><span class="n">NetParameter</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">def_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">def_file</span><span class="p">:</span>
+            <span class="n">text_format</span><span class="o">.</span><span class="n">Merge</span><span class="p">(</span><span class="n">def_file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphBuilder.filter_layers"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.GraphBuilder.filter_layers">[docs]</a>    <span class="k">def</span> <span class="nf">filter_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Filter out layers based on the current phase.&#39;&#39;&#39;</span>
+        <span class="n">phase_map</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span><span class="p">}</span>
+        <span class="n">filtered_layer_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">filtered_layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+            <span class="n">phase</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">include</span><span class="p">):</span>
+                <span class="n">phase</span> <span class="o">=</span> <span class="n">phase_map</span><span class="p">[</span><span class="n">layer</span><span class="o">.</span><span class="n">include</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">phase</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">exclude</span><span class="p">):</span>
+                <span class="n">phase</span> <span class="o">=</span> <span class="n">phase_map</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">layer</span><span class="o">.</span><span class="n">include</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">phase</span><span class="p">]</span>
+            <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="n">phase</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
+            <span class="c1"># Dropout layers appear in a fair number of Caffe</span>
+            <span class="c1"># test-time networks. These are just ignored. We&#39;ll</span>
+            <span class="c1"># filter them out here.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">exclude</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">phase</span> <span class="o">==</span> <span class="s1">&#39;test&#39;</span><span class="p">):</span>
+                <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">LayerType</span><span class="o">.</span><span class="n">Dropout</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exclude</span><span class="p">:</span>
+                <span class="n">filtered_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+                <span class="c1"># Guard against dupes.</span>
+                <span class="k">assert</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filtered_layer_names</span>
+                <span class="n">filtered_layer_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filtered_layers</span></div>
+
+<div class="viewcode-block" id="GraphBuilder.make_node"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.GraphBuilder.make_node">[docs]</a>    <span class="k">def</span> <span class="nf">make_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Create a graph node for the given layer.&#39;&#39;&#39;</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">NodeKind</span><span class="o">.</span><span class="n">map_raw_kind</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Unknown layer type encountered: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">layer</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+        <span class="c1"># We want to use the layer&#39;s top names (the &quot;output&quot; names), rather than the</span>
+        <span class="c1"># name attribute, which is more of readability thing than a functional one.</span>
+        <span class="c1"># Other layers will refer to a node by its &quot;top name&quot;.</span>
+        <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">layer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphBuilder.make_input_nodes"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.GraphBuilder.make_input_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">make_input_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create data input nodes.</span>
+
+<span class="sd">        This method is for old-style inputs, where the input specification</span>
+<span class="sd">        was not treated as a first-class layer in the prototext.</span>
+<span class="sd">        Newer models use the &quot;Input layer&quot; type.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">NodeKind</span><span class="o">.</span><span class="n">Data</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">input</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
+            <span class="n">input_dim</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">input_dim</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">input_dim</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">input_shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">input_dim</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Dimensions for input not specified.&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">output_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">input_dim</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nodes</span></div>
+
+<div class="viewcode-block" id="GraphBuilder.build"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.GraphBuilder.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Builds the graph from the Caffe layer definitions.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Get the layers</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">layers</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">layer</span>
+        <span class="c1"># Filter out phase-excluded layers</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_layers</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+        <span class="c1"># Get any separately-specified input layers</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_input_nodes</span><span class="p">()</span>
+        <span class="n">nodes</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">make_node</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">]</span>
+        <span class="c1"># Initialize the graph</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Connect the nodes</span>
+        <span class="c1">#</span>
+        <span class="c1"># A note on layers and outputs:</span>
+        <span class="c1"># In Caffe, each layer can produce multiple outputs (&quot;tops&quot;) from a set of inputs</span>
+        <span class="c1"># (&quot;bottoms&quot;). The bottoms refer to other layers&#39; tops. The top can rewrite a bottom</span>
+        <span class="c1"># (in case of in-place operations). Note that the layer&#39;s name is not used for establishing</span>
+        <span class="c1"># any connectivity. It&#39;s only used for data association. By convention, a layer with a</span>
+        <span class="c1"># single top will often use the same name (although this is not required).</span>
+        <span class="c1">#</span>
+        <span class="c1"># The current implementation only supports single-output nodes (note that a node can still</span>
+        <span class="c1"># have multiple children, since multiple child nodes can refer to the single top&#39;s name).</span>
+        <span class="n">node_outputs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">bottom</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">input_name</span> <span class="o">!=</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">parent_node</span> <span class="o">=</span> <span class="n">node_outputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">input_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">parent_node</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">parent_node</span> <span class="o">==</span> <span class="n">node</span><span class="p">):</span>
+                    <span class="n">parent_node</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">input_name</span><span class="p">)</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">add_parent</span><span class="p">(</span><span class="n">parent_node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">top</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">KaffeError</span><span class="p">(</span><span class="s1">&#39;Multiple top nodes are not supported.&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">output_name</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">top</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">output_name</span> <span class="o">==</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="c1"># Output is named the same as the node. No further action required.</span>
+                    <span class="k">continue</span>
+                <span class="c1"># There are two possibilities here:</span>
+                <span class="c1">#</span>
+                <span class="c1"># Case 1: output_name refers to another node in the graph.</span>
+                <span class="c1"># This is an &quot;in-place operation&quot; that overwrites an existing node.</span>
+                <span class="c1"># This would create a cycle in the graph. We&#39;ll undo the in-placing</span>
+                <span class="c1"># by substituting this node wherever the overwritten node is referenced.</span>
+                <span class="c1">#</span>
+                <span class="c1"># Case 2: output_name violates the convention layer.name == output_name.</span>
+                <span class="c1"># Since we are working in the single-output regime, we will can rename it to</span>
+                <span class="c1"># match the layer name.</span>
+                <span class="c1">#</span>
+                <span class="c1"># For both cases, future references to this top re-routes to this node.</span>
+                <span class="n">node_outputs</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+
+        <span class="n">graph</span><span class="o">.</span><span class="n">compute_output_shapes</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">graph</span></div></div>
+
+
+<div class="viewcode-block" id="NodeMapper"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.NodeMapper">[docs]</a><span class="k">class</span> <span class="nc">NodeMapper</span><span class="p">(</span><span class="n">NodeDispatch</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span>
+
+<div class="viewcode-block" id="NodeMapper.map"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.NodeMapper.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">topologically_sorted</span><span class="p">()</span>
+        <span class="c1"># Remove input nodes - we&#39;ll handle them separately.</span>
+        <span class="n">input_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">get_input_nodes</span><span class="p">()</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">input_nodes</span><span class="p">]</span>
+        <span class="c1"># Decompose DAG into chains.</span>
+        <span class="n">chains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="n">attach_to_chain</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_only_parent</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">chains</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">chain</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">parent</span><span class="p">:</span>
+                        <span class="c1"># Node is part of an existing chain.</span>
+                        <span class="n">attach_to_chain</span> <span class="o">=</span> <span class="n">chain</span>
+                        <span class="k">break</span>
+            <span class="k">if</span> <span class="n">attach_to_chain</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="c1"># Start a new chain for this node.</span>
+                <span class="n">attach_to_chain</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">chains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attach_to_chain</span><span class="p">)</span>
+            <span class="n">attach_to_chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="c1"># Map each chain.</span>
+        <span class="n">mapped_chains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">chains</span><span class="p">:</span>
+            <span class="n">mapped_chains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_chain</span><span class="p">(</span><span class="n">chain</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">mapped_chains</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NodeMapper.map_chain"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.NodeMapper.map_chain">[docs]</a>    <span class="k">def</span> <span class="nf">map_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">map_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="NodeMapper.map_node"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.NodeMapper.map_node">[docs]</a>    <span class="k">def</span> <span class="nf">map_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="n">map_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_handler</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="s1">&#39;map&#39;</span><span class="p">)</span>
+        <span class="n">mapped_node</span> <span class="o">=</span> <span class="n">map_func</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">mapped_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+        <span class="n">mapped_node</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="k">return</span> <span class="n">mapped_node</span></div>
+
+<div class="viewcode-block" id="NodeMapper.commit"><a class="viewcode-back" href="../../kaffe.html#kaffe.graph.NodeMapper.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapped_chains</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Must be implemented by subclass.&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Bicho.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>images_classifiers.models.helper &mdash; SafeImage 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="SafeImage 1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SafeImage
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="simple">
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">SafeImage</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>images_classifiers.models.helper</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for images_classifiers.models.helper</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="kn">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># Add the kaffe module to the import path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s1">&#39;../../../&#39;</span><span class="p">)))</span>
+
+<span class="kn">from</span> <span class="nn">googlenet</span> <span class="kn">import</span> <span class="n">GoogleNet</span>
+<span class="kn">from</span> <span class="nn">vgg</span> <span class="kn">import</span> <span class="n">VGG16</span>
+<span class="kn">from</span> <span class="nn">alexnet</span> <span class="kn">import</span> <span class="n">AlexNet</span>
+<span class="kn">from</span> <span class="nn">caffenet</span> <span class="kn">import</span> <span class="n">CaffeNet</span>
+<span class="kn">from</span> <span class="nn">nin</span> <span class="kn">import</span> <span class="n">NiN</span>
+<span class="kn">from</span> <span class="nn">resnet</span> <span class="kn">import</span> <span class="n">ResNet50</span><span class="p">,</span> <span class="n">ResNet101</span><span class="p">,</span> <span class="n">ResNet152</span>
+<span class="kn">from</span> <span class="nn">nsfw</span> <span class="kn">import</span> <span class="n">ResNet_50_1by2_nsfw</span>
+
+<div class="viewcode-block" id="DataSpec"><a class="viewcode-back" href="../../../images_classifiers.models.html#images_classifiers.models.helper.DataSpec">[docs]</a><span class="k">class</span> <span class="nc">DataSpec</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Input data specifications for an ImageNet model.&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">batch_size</span><span class="p">,</span>
+                 <span class="n">scale_size</span><span class="p">,</span>
+                 <span class="n">crop_size</span><span class="p">,</span>
+                 <span class="n">isotropic</span><span class="p">,</span>
+                 <span class="n">channels</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">mean</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">bgr</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="c1"># The recommended batch size for this model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="c1"># The image should be scaled to this size first during preprocessing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_size</span> <span class="o">=</span> <span class="n">scale_size</span>
+        <span class="c1"># Whether the model expects the rescaling to be isotropic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isotropic</span> <span class="o">=</span> <span class="n">isotropic</span>
+        <span class="c1"># A square crop of this dimension is expected by this model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crop_size</span> <span class="o">=</span> <span class="n">crop_size</span>
+        <span class="c1"># The number of channels in the input image expected by this model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="n">channels</span>
+        <span class="c1"># The mean to be subtracted from each image. By default, the per-channel ImageNet mean.</span>
+        <span class="c1"># The values below are ordered BGR, as many Caffe models are trained in this order.</span>
+        <span class="c1"># Some of the earlier models (like AlexNet) used a spatial three-channeled mean.</span>
+        <span class="c1"># However, using just the per-channel mean values instead doesn&#39;t affect things too much.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">=</span> <span class="n">mean</span> <span class="k">if</span> <span class="n">mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">104.</span><span class="p">,</span> <span class="mf">117.</span><span class="p">,</span> <span class="mf">124.</span><span class="p">])</span>
+        <span class="c1"># Whether this model expects images to be in BGR order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expects_bgr</span> <span class="o">=</span> <span class="bp">True</span></div>
+
+
+<div class="viewcode-block" id="alexnet_spec"><a class="viewcode-back" href="../../../images_classifiers.models.html#images_classifiers.models.helper.alexnet_spec">[docs]</a><span class="k">def</span> <span class="nf">alexnet_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Parameters used by AlexNet and its variants.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">DataSpec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">scale_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">crop_size</span><span class="o">=</span><span class="mi">227</span><span class="p">,</span> <span class="n">isotropic</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="std_spec"><a class="viewcode-back" href="../../../images_classifiers.models.html#images_classifiers.models.helper.std_spec">[docs]</a><span class="k">def</span> <span class="nf">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">isotropic</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Parameters commonly used by &quot;post-AlexNet&quot; architectures.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">DataSpec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">scale_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">crop_size</span><span class="o">=</span><span class="mi">224</span><span class="p">,</span> <span class="n">isotropic</span><span class="o">=</span><span class="n">isotropic</span><span class="p">)</span></div>
+
+<span class="c1"># Collection of sample auto-generated models</span>
+<span class="n">MODELS</span> <span class="o">=</span> <span class="p">(</span><span class="n">AlexNet</span><span class="p">,</span> <span class="n">CaffeNet</span><span class="p">,</span> <span class="n">GoogleNet</span><span class="p">,</span> <span class="n">NiN</span><span class="p">,</span> <span class="n">ResNet50</span><span class="p">,</span> <span class="n">ResNet101</span><span class="p">,</span> <span class="n">ResNet152</span><span class="p">,</span> <span class="n">VGG16</span><span class="p">)</span>
+
+<span class="c1"># The corresponding data specifications for the sample models</span>
+<span class="c1"># These specifications are based on how the models were trained.</span>
+<span class="c1"># The recommended batch size is based on a Titan X (12GB).</span>
+<span class="n">MODEL_DATA_SPECS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">AlexNet</span><span class="p">:</span> <span class="n">alexnet_spec</span><span class="p">(),</span>
+    <span class="n">CaffeNet</span><span class="p">:</span> <span class="n">alexnet_spec</span><span class="p">(),</span>
+    <span class="n">GoogleNet</span><span class="p">:</span> <span class="n">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">isotropic</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span>
+    <span class="n">ResNet50</span><span class="p">:</span> <span class="n">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+    <span class="n">ResNet101</span><span class="p">:</span> <span class="n">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+    <span class="n">ResNet152</span><span class="p">:</span> <span class="n">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+    <span class="n">NiN</span><span class="p">:</span> <span class="n">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">VGG16</span><span class="p">:</span> <span class="n">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+    <span class="n">ResNet_50_1by2_nsfw</span><span class="p">:</span> <span class="n">std_spec</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_models"><a class="viewcode-back" href="../../../images_classifiers.models.html#images_classifiers.models.helper.get_models">[docs]</a><span class="k">def</span> <span class="nf">get_models</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;Returns a tuple of sample models.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">MODELS</span></div>
+
+
+<div class="viewcode-block" id="get_data_spec"><a class="viewcode-back" href="../../../images_classifiers.models.html#images_classifiers.models.helper.get_data_spec">[docs]</a><span class="k">def</span> <span class="nf">get_data_spec</span><span class="p">(</span><span class="n">model_instance</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">model_class</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Returns the data specifications for the given network.&#39;&#39;&#39;</span>
+    <span class="n">model_class</span> <span class="o">=</span> <span class="n">model_class</span> <span class="ow">or</span> <span class="n">model_instance</span><span class="o">.</span><span class="n">__class__</span>
+    <span class="k">return</span> <span class="n">MODEL_DATA_SPECS</span><span class="p">[</span><span class="n">model_class</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Daniel Bicho.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
