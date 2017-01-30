@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../static/css/stylesheet.css">
+    <title>SafeImage Testing Board</title>
+</head>
+<body>
+    <h1>Classifier Report</h1>
+    <p>AUC score: {{ AUC }}</p>
+    <p>ACC score: {{ ACC }}</p>
+    <p>Confusion Matrix: {{ CF }}</p>
+    <h1>Safe Images</h1>
+  {% for image in scores_safe %}
+      <div class="caption">
+      <img src="../static/images/Safe/{{ image[0] }}" style="width:304px;height:228px;">
+        <br>
+      NotSafe: {{ image[1]['NotSafe'] }}, Safe: {{ image[1]['Safe'] }}
+      </div>
+  {% endfor %}
+<br>
+<h1>Not Safe Images</h1>
+{% for image in scores_not_safe %}
+      <div class="caption">
+      <img src="../static/images/NotSafe/{{ image[0] }}" style="width:304px;height:228px;">
+          <br>
+      NotSafe: {{ image[1]['NotSafe'] }}, Safe: {{ image[1]['Safe'] }}
+      </div>
+  {% endfor %}
+</body>
+</html>

@@ -86,8 +86,8 @@ class NSFWClassifier(Classifier):
         print('Classifying')
         predictions = self._sess.run(self._net.get_output(), feed_dict={self._input_node: [image_array]})
 
-        # Get a list of ImageNet class labels
-        with open(os.path.dirname(__file__) + "/nsfw_classes.txt", 'rb') as infile:
+        # Get a list of class labels
+        with open(os.path.dirname(__file__) + "/labels.txt", 'rb') as infile:
             class_labels = map(str.strip, infile.readlines())
 
         result = defaultdict()
@@ -107,7 +107,7 @@ class SafeImageClassifier(Classifier):
         self.softmax_tensor = self.sess.graph.get_tensor_by_name('final_result:0')
         # Loads label file, strips off carriage return
         self.label_lines = [line.rstrip() for line
-                            in tf.gfile.GFile(os.path.dirname(__file__) + "/retrained_labels.txt")]
+                            in tf.gfile.GFile(os.path.dirname(__file__) + "/labels.txt")]
 
     def load_session_graph(self, graph_path):
         """ Loads the graph model."""
