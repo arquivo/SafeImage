@@ -66,13 +66,13 @@ def testing_backend():
     y_ = []
 
     for result in scores_safe:
-        if float(result[1]['Safe']) > float(result[1]['NotSafe']):
+        if float(result[1]['NSFW']) <= 0.7:
             y_.append(0)
         else:
             y_.append(1)
 
     for result in scores_not_safe:
-        if float(result[1]['Safe']) < float(result[1]['NotSafe']):
+        if float(result[1]['NSFW']) > 0.7:
             y_.append(1)
         else:
             y_.append(0)

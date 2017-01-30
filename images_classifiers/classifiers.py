@@ -2,6 +2,7 @@ import os
 from collections import defaultdict
 from io import BytesIO
 
+import numpy as np
 import tensorflow as tf
 from PIL import Image
 
@@ -13,7 +14,7 @@ __email__ = "daniel.bicho@fccn.pt"
 
 
 class NSFWClassifier(Classifier):
-    """Not Safe For Work Image (NFSFW) Classifier.
+    """Not Safe For Work Image (NSFW) Classifier.
 
     This class classify an image if its NSFW or not.
     It uses the open sourced NSFW classifier model used by Yahoo converted to a Tensorflow network.
@@ -41,7 +42,17 @@ class NSFWClassifier(Classifier):
     # TODO add support for more image types
     def load_image(self, image_data, is_jpeg):
         # Decode the image data
-        img = tf.image.decode_jpeg(image_data, channels=self._spec.channels)
+
+        image = Image.open(BytesIO(image_data))
+        image_array = image.convert('RGB')
+        img = np.asarray(image_array)
+
+        # 20x faster method to convert a Pillow ImageObject to numpy array
+        # dont work
+        #data = list(image.getdata())
+        #img = np.fromstring(data.tostring(), dtype='uint8', count=-1, sep='').reshape(
+        #    data.shape + (len(data.getbands()),))
+
 
         if self._spec.expects_bgr:
             # Convert from RGB channel ordering to BGR
@@ -106,8 +117,9 @@ class NSFWClassifier(Classifier):
             class_labels = map(str.strip, infile.readlines())
 
         result = defaultdict()
+
         score = predictions[0]
-        result[class_labels[0]] = str(score[1])
+        result[class_labels[0]] = str(round(score[1],2))
 
         return result
 
@@ -164,7 +176,19 @@ class SafeImageClassifier(Classifier):
 
 if __name__ == '__main__':
     classifier = NSFWClassifier()
+
+    # Test JPEG Image
     with open('../static/images/NotSafe/5.jpg') as f:
         file_data = f.read()
-
     print classifier.classify(file_data)
+
+    # Test PNG Image
+    with open('../static/images/Safe/mwmac.png') as f:
+        file_data = f.read()
+    print classifier.classify(file_data)
+
+    # Test GIF Image
+    with open('../static/images/Safe/noimage3.gif') as f:
+        file_data = f.read()
+    print classifier.classify(file_data)
+    # Test other more uncommom formats

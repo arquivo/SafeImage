@@ -15,7 +15,7 @@
       <div class="caption">
       <img src="../static/images/Safe/{{ image[0] }}" style="width:304px;height:228px;">
         <br>
-      NotSafe: {{ image[1]['NotSafe'] }}, Safe: {{ image[1]['Safe'] }}
+      NSFW Score: {{ image[1]['NSFW'] }}
       </div>
   {% endfor %}
 <br>
@@ -24,7 +24,7 @@
       <div class="caption">
       <img src="../static/images/NotSafe/{{ image[0] }}" style="width:304px;height:228px;">
           <br>
-      NotSafe: {{ image[1]['NotSafe'] }}, Safe: {{ image[1]['Safe'] }}
+      NSFW Score: {{ image[1]['NSFW'] }}
       </div>
   {% endfor %}
 </body>
