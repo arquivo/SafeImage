@@ -13,6 +13,40 @@ SafeImage is composed with two components:
 #. An REST WebService API provided by Flask Framework.
 #. A Deep Neural Network to classify images using Tensorflow.
 
+Get code from Repository
+------------------------
+
+.. code-block:: html
+    :linenos:
+
+    git clone http://github.com/danielbicho/safeimage.git
+
+
+Install Requirements
+--------------------
+
+Install Requirements.txt with pip:
+
+.. code-block:: html
+    :linenos:
+
+    cd SafeImage/
+    pip install -r requirements.txt
+
+Launch SafeImage API throug uWSGI:
+----------------------------------
+.. code-block:: html
+    :linenos:
+
+    uwsgi uwsgi.ini
+
+Test the service using the provided test client:
+------------------------------------------------
+.. code-block:: html
+    :linenos:
+
+    python client_test.py http://example.org/image.jpg
+
 
 Indices and tables
 ==================

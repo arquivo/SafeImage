@@ -137,6 +137,33 @@
 <li>An REST WebService API provided by Flask Framework.</li>
 <li>A Deep Neural Network to classify images using Tensorflow.</li>
 </ol>
+<div class="section" id="get-code-from-repository">
+<h2>Get code from Repository<a class="headerlink" href="#get-code-from-repository" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-html"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>git clone http://github.com/danielbicho/safeimage.git
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="install-requirements">
+<h2>Install Requirements<a class="headerlink" href="#install-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Install Requirements.txt with pip:</p>
+<div class="highlight-html"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2</pre></div></td><td class="code"><div class="highlight"><pre><span></span>cd SafeImage/
+pip install -r requirements.txt
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="launch-safeimage-api-throug-uwsgi">
+<h2>Launch SafeImage API throug uWSGI:<a class="headerlink" href="#launch-safeimage-api-throug-uwsgi" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-html"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>uwsgi uwsgi.ini
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="section" id="test-the-service-using-the-provided-test-client">
+<h2>Test the service using the provided test client:<a class="headerlink" href="#test-the-service-using-the-provided-test-client" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-html"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="highlight"><pre><span></span>python client_test.py http://example.org/image.jpg
+</pre></div>
+</td></tr></table></div>
+</div>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
