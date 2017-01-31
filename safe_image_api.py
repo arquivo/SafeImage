@@ -1,8 +1,8 @@
-import json
 import os
 
 import numpy as np
 from flask import Flask
+from flask import jsonify
 from flask import render_template
 from flask_restful import Resource, Api
 from flask_restful import reqparse
@@ -41,7 +41,7 @@ class ClassifierAPI(Resource):
         args = parser.parse_args()
         image_to_classify = args['image'].decode('base64')
         result = classifier.classify(image_to_classify)
-        return json.dumps(result), 200
+        return jsonify(NSFW=result['NSFW'])
 
 
 @application.route('/')
