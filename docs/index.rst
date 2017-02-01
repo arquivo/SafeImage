@@ -6,7 +6,7 @@
 SafeImage
 =====================================
 
-SafeImage is an Web API that the users submit an Image and the service classify the image if it has explicit content or not.
+SafeImage is an Web Service, where the users can submit an image and obtain the classifcation result if it has explicit content or not.
 
 SafeImage is composed with two components:
 
@@ -25,7 +25,8 @@ Get code from Repository
 Install Requirements
 --------------------
 
-Install Requirements.txt with pip:
+#. An working enviroment with Python2.7.
+#. Install Requirements.txt with pip.
 
 .. code-block:: html
     :linenos:
