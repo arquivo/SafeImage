@@ -8,6 +8,11 @@ SafeImage is composed with two components:
 1.  An REST WebService API provided by Flask Framework.
 2.  A Deep Neural Network to classify images using Tensorflow.
 
+Currently reported evaluation against Arquivo.pt Image Search queries:
+
+![](https://github.com/arquivo/SafeImage/blob/master/docs/ROC.png?raw=true "ROC")
+
+
 Get code from Repository
 ------------------------
 
