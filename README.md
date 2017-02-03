@@ -44,3 +44,23 @@ Test the service using the provided test client:
 ``` sourceCode
 python client_test.py http://example.org/image.jpg
 ```
+
+Example of request to the API:
+------------------------------
+Request a POST to /safeimage path with the following JSON content:
+
+POST /safeimage
+
+{
+
+  "image": image_64
+  
+}
+
+Replace 'image_64' with the base64 encoded image bytes.
+
+
+
+
+
+
