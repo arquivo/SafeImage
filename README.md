@@ -1,9 +1,9 @@
 SafeImage
 =========
 
-SafeImage is an Web Service, where the users can submit an image and obtain the classifcation result if it has explicit content or not.
+SafeImage is an Web Service, where the users can submit an image and obtain the NSFW (Not Safe for Work) score of the image.
 
-SafeImage is composed with two components:
+SafeImage is composed by two components:
 
 1.  An REST WebService API provided by Flask Framework.
 2.  A Deep Neural Network to classify images using Tensorflow.
