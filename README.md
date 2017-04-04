@@ -30,6 +30,10 @@ Install Requirements
 cd SafeImage/
 pip install -r requirements.txt
 ```
+Install SafeImage API:
+``` sourceCode
+python setup.py install
+```
 
 Launch SafeImage API throug uWSGI:
 ----------------------------------
