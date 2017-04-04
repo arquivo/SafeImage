@@ -17,7 +17,7 @@ Get code from Repository
 ------------------------
 
 ``` sourceCode
-git clone http://github.com/danielbicho/safeimage.git
+git clone https://github.com/arquivo/SafeImage.git
 ```
 
 Install Requirements
