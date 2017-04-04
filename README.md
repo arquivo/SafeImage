@@ -30,7 +30,8 @@ Install Requirements
 cd SafeImage/
 pip install -r requirements.txt
 ```
-Install SafeImage API:
+3. Install SafeImage API:
+
 ``` sourceCode
 python setup.py install
 ```
