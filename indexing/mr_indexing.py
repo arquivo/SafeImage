@@ -24,9 +24,9 @@ class IndexNSFW(MRJob):
                'mapred.job.priority': 'VERY_HIGH'
                }
 
-
     def mapper(self, _, line):
-        #line = line.split('\t')[1]
+        # TODO change the RawValueProtocol to JSONValueProtocol, to avoid this split and work directly with JSONs
+        line = line.split('\t')[1]
         json_doc = json.loads(line)
         json_data = {"image": json_doc['srcBase64']}
 
