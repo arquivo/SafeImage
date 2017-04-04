@@ -109,7 +109,7 @@ class NSFWClassifier(Classifier):
         image_array = self._sess.run(processed_img)
 
         # Perform a forward pass through the network to get the class probabilities
-        print('Classifying')
+        #print('Classifying')
         predictions = self._sess.run(self._net.get_output(), feed_dict={self._input_node: [image_array]})
 
         # Get a list of class labels
