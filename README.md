@@ -17,7 +17,7 @@ Get code from Repository
 ------------------------
 
 ``` sourceCode
-git clone http://github.com/danielbicho/safeimage.git
+git clone https://github.com/arquivo/SafeImage.git
 ```
 
 Install Requirements
@@ -29,6 +29,11 @@ Install Requirements
 ``` sourceCode
 cd SafeImage/
 pip install -r requirements.txt
+```
+3. Install SafeImage API:
+
+``` sourceCode
+python setup.py install
 ```
 
 Launch SafeImage API throug uWSGI:
