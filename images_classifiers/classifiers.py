@@ -12,7 +12,7 @@ from images_classifiers import models
 __author__ = "Daniel Bicho"
 __email__ = "daniel.bicho@fccn.pt"
 
-
+# TODO use a logger
 class NSFWClassifier(Classifier):
     """Not Safe For Work Image (NSFW) Classifier.
 

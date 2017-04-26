@@ -13,18 +13,14 @@ from images_classifiers.classifiers import NSFWClassifier
 __author__ = "Daniel Bicho"
 __email__ = "daniel.bicho@fccn.pt"
 
+
+classifier = NSFWClassifier()
+
 application = Flask(__name__)
 api = Api(application)
 
 parser = reqparse.RequestParser()
 parser.add_argument('image', type=str, help='Image to be classified as safe or not')
-
-
-@application.before_first_request
-def init_classifier():
-    """ Initiate the Classifier Object before the first request for each process."""
-    global classifier
-    classifier = NSFWClassifier()
 
 
 class ClassifierAPI(Resource):
@@ -41,10 +37,11 @@ class ClassifierAPI(Resource):
         args = parser.parse_args()
         image_to_classify = args['image'].decode('base64')
         result = classifier.classify(image_to_classify)
+        application.logger.info('Image Classified with Score: {}'.format(result['NSFW']))
         return jsonify(NSFW=result['NSFW'])
 
 
-@application.route('/')
+@application.route('/backend')
 def testing_backend():
     """Debug Endpoint to image classifaction. Classify images at the folder /static/images."""
     scores_safe = []

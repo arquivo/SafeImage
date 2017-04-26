@@ -25,24 +25,31 @@ class IndexNSFW(MRJob):
                }
 
     def mapper(self, _, line):
-        # TODO change the RawValueProtocol to JSONValueProtocol, to avoid this split and work directly with JSONs
-        line = line.split('\t')[1]
-        json_doc = json.loads(line)
-        json_data = {"image": json_doc['srcBase64']}
+        try:
+            # TODO change the RawValueProtocol to JSONValueProtocol, to avoid this split and work directly with JSONs
+            line = line.split('\t')[1]
+            json_doc = json.loads(line)
+            json_data = {"image": json_doc['srcBase64']}
 
-        retries_count = 0
-        success = False
-        while not success and retries_count < 5:
-            try:
-                response = requests.post('http://p29.arquivo.pt:9080/safeimage', json=json_data)
-                json_doc['NSFW'] = json.loads(response.content)['NSFW']
-                json_str = json.dumps(json_doc)
-                self.stdout.write(json_str + '\n')
-                success = True
-            except requests.ConnectionError:
-                retries_count += 1
-                time.sleep(10)
-        if not success:
+            retries_count = 0
+            success = False
+            while not success and retries_count < 5:
+                try:
+                    response = requests.post('http://p17.arquivo.pt:5000/safeimage', json=json_data)
+                    #response = requests.post('http://p29.arquivo.pt:9080/safeimage', json=json_data)
+
+                    if response.status_code == 200:
+                        json_doc['NSFW'] = json.loads(response.content)['NSFW']
+                        json_str = json.dumps(json_doc)
+                        self.stdout.write(json_str + '\n')
+                        success = True
+                except requests.ConnectionError:
+                    retries_count += 1
+                    time.sleep(10)
+            if not success:
+                self.stdout.write(json.dumps(json_doc) + '\n')
+                self.stderr.write('Unable to get a NSFW score to the line: {}'.format(line))
+        except:
             self.stderr.write('Unable to process the line: {}'.format(line))
 
 if __name__ == "__main__":
