@@ -36,7 +36,7 @@ class NSFWClassifier(Classifier):
         self._sess = tf.Session()
 
         # Load the converted parameters
-        print('Loading the model')
+        # TODO log it properly print('Loading the model')
         self._net.load(os.path.dirname(__file__) + "/nsfw.npy", self._sess)
 
     # TODO add support for more image types
