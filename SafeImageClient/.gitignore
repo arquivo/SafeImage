@@ -1,0 +1,10 @@
+target
+.classpath
+.project
+.settings
+bin
+build
+*.sw?
+.#*
+*#
+*~
