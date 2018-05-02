@@ -7,14 +7,15 @@ from flask import render_template
 from flask_restful import Resource, Api
 from flask_restful import reqparse
 from sklearn import metrics
+import base64
 
-from images_classifiers.classifiers import NSFWClassifier
+from images_classifiers.cf.classifiers import CaffeNsfwClassifier
 
 __author__ = "Daniel Bicho"
 __email__ = "daniel.bicho@fccn.pt"
 
 
-classifier = NSFWClassifier()
+classifier = CaffeNsfwClassifier()
 
 application = Flask(__name__)
 api = Api(application)
@@ -35,10 +36,10 @@ class ClassifierAPI(Resource):
         The API can handle any common type of image format. (JPG, PNG, GIF, BMP, etc...)
         """
         args = parser.parse_args()
-        image_to_classify = args['image'].decode('base64')
+        image_to_classify = base64.b64decode(args['image'])
         result = classifier.classify(image_to_classify)
-        application.logger.info('Image Classified with Score: {}'.format(result['NSFW']))
-        return jsonify(NSFW=result['NSFW'])
+        application.logger.info('Images Classified with Score: {}'.format(result))
+        return jsonify(result)
 
 
 @application.route('/backend')

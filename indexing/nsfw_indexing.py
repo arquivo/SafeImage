@@ -5,10 +5,10 @@ import requests
 
 sys.path.append("..")
 
-from images_classifiers.classifiers import NSFWClassifier
+from images_classifiers.classifiers import TFNSFWClassifier
 
 def nsfw_index(path):
-    classifier = NSFWClassifier()
+    classifier = TFNSFWClassifier()
     count = 0
     with open('indexed.jsonl', mode='wa') as output:
         with open(path) as f:
@@ -19,7 +19,7 @@ def nsfw_index(path):
                 json_str = json.dumps(json_doc)
                 output.write(json_str + '\n')
                 count = count + 1
-                print count
+                print(count)
 
 def nsfw_index_sevice(path, endpoint):
     count = 0
@@ -34,7 +34,7 @@ def nsfw_index_sevice(path, endpoint):
                 json_str = json.dumps(json_doc)
                 output.write(json_str + '\n')
                 count = count + 1
-                print count
+                print(count)
 
 
 if __name__ == '__main__':

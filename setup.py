@@ -7,7 +7,7 @@ setup(
     packages=find_packages(),
     package_data={'':['*.npy']},
     include_package_data=True,
-    url='https://github.com/danielbicho/SafeImage',
+    url='https://github.com/arquivo/SafeImage',
     license='',
     author='dbicho',
     author_email='daniel.bicho@fccn.pt',
