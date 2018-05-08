@@ -1,3 +1,4 @@
+redis
 requests
 numpy
 tensorflow
@@ -8,3 +9,4 @@ Flask_RESTFul
 uwsgi
 scipy
 sklearn
+ansible
