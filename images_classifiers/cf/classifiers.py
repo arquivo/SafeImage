@@ -1,7 +1,6 @@
 # /home/dbicho/caffe
-from collections import defaultdict
-from io import BytesIO
 import os
+from io import BytesIO
 
 import numpy as np
 from PIL import Image
@@ -84,7 +83,7 @@ class CaffeNsfwClassifier(Classifier):
 
             input_name = self.nsfw_net.inputs[0]
             all_outputs = self.nsfw_net.forward_all(blobs=output_layers,
-                                                **{input_name: transformed_image})
+                                                    **{input_name: transformed_image})
 
             outputs = np.around(all_outputs['prob'][:, 1].astype(float), decimals=3)
             return outputs
@@ -133,7 +132,6 @@ class CaffeNsfwClassifier(Classifier):
                 else:
                     transformed_images = transformed_image
 
-
             input_name = self.nsfw_net.inputs[0]
             all_outputs = self.nsfw_net.forward_all(blobs=output_layers, **{input_name: transformed_images})
 
@@ -142,16 +140,17 @@ class CaffeNsfwClassifier(Classifier):
         else:
             return []
 
-    def classify_batch(self, images_data):
-        scores = self.caffe_batch_preprocess_and_compute(images_data)
+    def classify_batch(self, imgs_data):
+        scores = self.caffe_batch_preprocess_and_compute(imgs_data)
+
         # Get a list of class labels
-        with open(os.path.dirname(__file__) + "/labels.txt", 'r') as infile:
-            class_labels = infile.readlines()[0].strip()
+        #with open(os.path.dirname(__file__) + "/labels.txt", 'r') as infile:
+        #    class_labels = infile.readlines()[0].strip()
 
         result_list = []
 
         for score in scores:
-            result_list.append({class_labels: str(score)})
+            result_list.append(score)
 
         return result_list
 
@@ -167,6 +166,7 @@ class CaffeNsfwClassifier(Classifier):
             result_list.append({class_labels: str(score)})
 
         return result_list
+
 
 # TODO Transform this in a unitary test
 if __name__ == '__main__':

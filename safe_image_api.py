@@ -17,7 +17,7 @@ __email__ = "daniel.bicho@fccn.pt"
 # TODO make this configurable (settings.HOST etc..)
 db = redis.StrictRedis(host='localhost', port=6379)
 
-classifier = CaffeNsfwClassifier()
+# classifier = CaffeNsfwClassifier()
 
 application = Flask(__name__)
 api = Api(application)
@@ -38,12 +38,14 @@ class ClassifierAPI(Resource):
         The API can handle any common type of image format. (JPG, PNG, GIF, BMP, etc...)
         """
         args = parser.parse_args()
-        image_to_classify = base64.b64decode(args['image'])
+
+        # no need to deserialize here, it will be sent to redis first
+        # image_to_classify = base64.b64decode(args['image'])
 
         data = {"success": False}
         key = str(uuid.uuid4())
 
-        d = {"id": key, "image": image_to_classify}
+        d = {"id": key, "image": args['image']}
         db.rpush("image_queueing", json.dumps(d))
 
         while True:
