@@ -1,4 +1,3 @@
-# /home/dbicho/caffe
 import os
 from io import BytesIO
 
@@ -11,14 +10,13 @@ from classifier import Classifier
 
 class CaffeNsfwClassifier(Classifier):
 
-    def __init__(self):
-        # TODO change this to a configuration file
+    def __init__(self, batch_size=1):
         self.model = os.path.join(os.path.dirname(__file__), "models/nsfw_model/deploy.prototxt")
         self.weights = os.path.join(os.path.dirname(__file__), "models/nsfw_model/resnet_50_1by2_nsfw.caffemodel")
         self.nsfw_net = caffe.Net(self.model, self.weights, caffe.TEST)
 
         # reshape input data to handle batch size
-        self.nsfw_net.blobs['data'].reshape(14, 3, 224, 224)
+        self.reshape = self.nsfw_net.blobs['data'].reshape(batch_size, 3, 224, 224)
 
         # Load transformer
         # Note that the parameters are hard-coded for best results
@@ -142,41 +140,9 @@ class CaffeNsfwClassifier(Classifier):
 
     def classify_batch(self, imgs_data):
         scores = self.caffe_batch_preprocess_and_compute(imgs_data)
+        return scores.tolist()
 
-        # Get a list of class labels
-        #with open(os.path.dirname(__file__) + "/labels.txt", 'r') as infile:
-        #    class_labels = infile.readlines()[0].strip()
-
-        result_list = []
-
-        for score in scores:
-            result_list.append(score)
-
-        return result_list
 
     def classify(self, image_data):
         scores = self.caffe_preprocess_and_compute(image_data)
-        # Get a list of class labels
-        with open(os.path.dirname(__file__) + "/labels.txt", 'r') as infile:
-            class_labels = infile.readlines()[0].strip()
-
-        result_list = []
-
-        for score in scores:
-            result_list.append({class_labels: str(score)})
-
-        return result_list
-
-
-# TODO Transform this in a unitary test
-if __name__ == '__main__':
-    classifier = CaffeNsfwClassifier()
-    images_path = "fffaffbfa7e84f5e81cc3469ab4bbfba.jpg", "aa4d2fb19eef48f89c01af65937c0bbb.jpg"
-    images_data = []
-    for image_path in images_path:
-        with open(image_path, mode='rb') as fl:
-            images_data.append(fl.read())
-
-    print(classifier.classify(images_data[0]))
-    print(classifier.classify(images_data[1]))
-    print(classifier.classify_batch(images_data))
+        return scores.tolist()

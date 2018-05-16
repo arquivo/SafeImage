@@ -2,20 +2,25 @@ import base64
 import json
 import time
 
+import yaml
 import redis
 
 from images_classifiers.cf.classifiers import CaffeNsfwClassifier
 
 if __name__ == '__main__':
+    with open('config.yaml', mode='r') as cf:
+        config = yaml.load(cf)
+
     db = redis.StrictRedis(
-        host='localhost',
-        port=6379,
+        host=config['redis_hostname'],
+        port=config['redis_port'],
     )
+
     classifier = CaffeNsfwClassifier()
 
     while True:
         # TODO change batch size
-        queue = db.lrange("image_queueing", 0, 1)
+        queue = db.lrange("image_queueing", 0, 8)
         image_ids = []
         batch = []
 

@@ -1,29 +1,28 @@
-import base64
 import json
 import time
 import uuid
 
 import redis
+import yaml
 from flask import Flask
 from flask import jsonify
 from flask_restful import Resource, Api
 from flask_restful import reqparse
 
-from images_classifiers.cf.classifiers import CaffeNsfwClassifier
-
 __author__ = "Daniel Bicho"
 __email__ = "daniel.bicho@fccn.pt"
 
-# TODO make this configurable (settings.HOST etc..)
-db = redis.StrictRedis(host='localhost', port=6379)
-
-# classifier = CaffeNsfwClassifier()
 
 application = Flask(__name__)
 api = Api(application)
 
 parser = reqparse.RequestParser()
 parser.add_argument('image', type=str, help='Image to be classified as safe or not')
+
+with open('config.yaml', mode='r') as cf:
+    config = yaml.load(cf)
+
+db = redis.StrictRedis(host=config['redis_hostname'], port=config['redis_port'])
 
 
 class ClassifierAPI(Resource):
