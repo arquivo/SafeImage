@@ -2,25 +2,19 @@ import base64
 import json
 import time
 
-import yaml
 import redis
+import argparse
 
 from images_classifiers.cf.classifiers import CaffeNsfwClassifier
 
-if __name__ == '__main__':
-    with open('config.yaml', mode='r') as cf:
-        config = yaml.load(cf)
 
-    db = redis.StrictRedis(
-        host=config['redis_hostname'],
-        port=config['redis_port'],
-    )
+def init_worker(hostname, port, batch_size, polling_time):
+    db = redis.StrictRedis(hostname=hostname, port=port)
 
-    classifier = CaffeNsfwClassifier()
+    classifier = CaffeNsfwClassifier(batch_size=batch_size)
 
     while True:
-        # TODO change batch size
-        queue = db.lrange("image_queueing", 0, 8)
+        queue = db.lrange("image_queueing", 0, batch_size)
         image_ids = []
         batch = []
 
@@ -40,4 +34,16 @@ if __name__ == '__main__':
 
             db.ltrim("image_queueing", len(image_ids), -1)
 
-        time.sleep(0.25)
+        time.sleep(polling_time)
+
+
+if __name__ == '__main__':
+    argparse = argparse.ArgumentParser(description='Worker to consume images to be classified from a Redis Broker.')
+    argparse.add_argument('hostname', default='localhost', help='Specify Redis Server hostname.')
+    argparse.add_argument('port', default=6379, help='Specify Redis Server listening port.')
+    argparse.add_argument('batch_size', default=1, help='Speficy the batch size to classify.')
+    argparse.add_argument('polling_time', default=0.25, help='Polling time interval in seconds.')
+
+    args = argparse.parse_args()
+
+    init_worker(args.hostname, args.port, args.batch_size, args.polling_time)
