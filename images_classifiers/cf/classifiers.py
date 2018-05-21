@@ -7,12 +7,27 @@ from PIL import Image
 import caffe
 from classifier import Classifier
 
-
-class CaffeNsfwClassifier(Classifier):
+# TODO implement NsfwSqueezeClassifier
+class CaffeNsfwSqueezeClassifier(Classifier):
 
     def __init__(self, batch_size=1):
-        self.model = os.path.join(os.path.dirname(__file__), "models/nsfw_model/deploy.prototxt")
-        self.weights = os.path.join(os.path.dirname(__file__), "models/nsfw_model/resnet_50_1by2_nsfw.caffemodel")
+        self.model = None
+        self.weights = None
+        self.squeeze_nsfw_net = None
+
+    def classify(self, image_data):
+        pass
+
+    def classify_batch(self, images_data):
+        pass
+
+
+class CaffeNsfwResnetClassifier(Classifier):
+
+    def __init__(self, batch_size=1):
+        self.model = os.path.join(os.path.dirname(__file__), "models/nsfw_resnet_model/deploy.prototxt")
+        self.weights = os.path.join(os.path.dirname(__file__),
+                                    "models/nsfw_resnet_model/resnet_50_1by2_nsfw.caffemodel")
         self.nsfw_net = caffe.Net(self.model, self.weights, caffe.TEST)
 
         # reshape input data to handle batch size
@@ -141,7 +156,6 @@ class CaffeNsfwClassifier(Classifier):
     def classify_batch(self, imgs_data):
         scores = self.caffe_batch_preprocess_and_compute(imgs_data)
         return scores.tolist()
-
 
     def classify(self, image_data):
         scores = self.caffe_preprocess_and_compute(image_data)
