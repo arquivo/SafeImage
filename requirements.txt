@@ -10,6 +10,7 @@ Flask_RESTFul
 uwsgi
 scipy
 sklearn
+scikit-image
 ansible
 redis
 argparse

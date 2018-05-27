@@ -24,7 +24,8 @@ setup(
         'Flask_RESTful',
         'uwsgi',
         'scipy',
-        'sklearn'
+        'sklearn',
+        'scikit-image'
     ],
 
     entry_points={
