@@ -5,13 +5,25 @@ import time
 import redis
 import argparse
 
-from images_classifiers.cf.classifiers import CaffeNsfwClassifier
+from images_classifiers.cf.classifiers import CaffeNsfwResnetClassifier
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Worker to consume images to be classified from a Redis Broker.')
+    parser.add_argument('hostname', default='localhost', help='Specify Redis Server hostname.')
+    parser.add_argument('port', default=6379, help='Specify Redis Server listening port.')
+    parser.add_argument('batch_size', default=1, help='Speficy the batch size to classify.')
+    parser.add_argument('polling_time', default=0.25, help='Polling time interval in seconds.')
+
+    args = argparse.parse_args()
+
+    init_worker(args.hostname, args.port, args.batch_size, args.polling_time)
 
 
 def init_worker(hostname, port, batch_size, polling_time):
     db = redis.StrictRedis(hostname=hostname, port=port)
 
-    classifier = CaffeNsfwClassifier(batch_size=batch_size)
+    classifier = CaffeNsfwResnetClassifier(batch_size=batch_size)
 
     while True:
         queue = db.lrange("image_queueing", 0, batch_size)
@@ -38,12 +50,4 @@ def init_worker(hostname, port, batch_size, polling_time):
 
 
 if __name__ == '__main__':
-    argparse = argparse.ArgumentParser(description='Worker to consume images to be classified from a Redis Broker.')
-    argparse.add_argument('hostname', default='localhost', help='Specify Redis Server hostname.')
-    argparse.add_argument('port', default=6379, help='Specify Redis Server listening port.')
-    argparse.add_argument('batch_size', default=1, help='Speficy the batch size to classify.')
-    argparse.add_argument('polling_time', default=0.25, help='Polling time interval in seconds.')
-
-    args = argparse.parse_args()
-
-    init_worker(args.hostname, args.port, args.batch_size, args.polling_time)
+    main()
