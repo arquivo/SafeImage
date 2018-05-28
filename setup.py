@@ -31,7 +31,8 @@ setup(
     entry_points={
         'console_scripts': [
             'safe-image-api=safe_image_api:main',
-            'safe-image-worker=workers.worker:main'
+            'nsfw-resnet-worker=workers.resnet_nsfw_worker:main',
+            'nsfw-squeezenet-worker=workers.squeezenet_nsfw_worker:main'
         ],
     },
 )

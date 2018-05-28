@@ -12,7 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description='Worker to consume images to be classified from a Redis Broker.')
     parser.add_argument('hostname', default='localhost', help='Specify Redis Server hostname.')
     parser.add_argument('port', default=6379, help='Specify Redis Server listening port.')
-    parser.add_argument('batch_size', default=1, help='Speficy the batch size to classify.')
+    parser.add_argument('batch_size', default=1, help='Specify the batch size to classify.')
     parser.add_argument('polling_time', default=0.25, help='Polling time interval in seconds.')
 
     args = argparse.parse_args()
