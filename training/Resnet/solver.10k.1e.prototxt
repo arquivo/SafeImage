@@ -1,0 +1,17 @@
+test_iter: 950 #not subject to iter_size # 1 epoch 950
+test_interval: 500
+base_lr: 0.001
+display: 10
+max_iter: 2850 # 1 epoch 2850
+iter_size: 7 #global batch size = batch_size * iter_size
+lr_policy: "poly"
+power: 1.0 #linearly decrease LR
+momentum: 0.9
+weight_decay: 0.000001 #J - 0.0002
+snapshot: 500
+snapshot_prefix: "train"
+solver_mode: GPU
+random_seed: 144000
+net: "train_val.prototxt" 
+test_initialization: true
+average_loss: 49
