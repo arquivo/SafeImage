@@ -1,6 +1,6 @@
 import argparse
 import base64
-import urllib2
+from urllib.request import urlopen
 
 import requests
 
@@ -20,16 +20,15 @@ def classify_image(image_url, endpoint):
     """
 
     # Encode with base64 the image bits to send to through the wire
-    image_64 = str(
-        base64.b64encode(
-            urllib2.urlopen(image_url).read()).decode(
-            "ascii"))
+    image_64 = base64.b64encode(
+            urlopen(image_url).read()).decode(
+            "ascii")
 
     json_data = {"image": image_64}
 
     response = requests.post(endpoint, json=json_data)
 
-    print "%s %s" % (response.content, image_url)
+    print("%s %s" % (response.content, image_url))
 
 
 if __name__ == '__main__':

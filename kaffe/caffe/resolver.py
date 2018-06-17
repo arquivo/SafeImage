@@ -10,8 +10,8 @@ class CaffeResolver(object):
         self.caffe = None
         try:
             # Try to import PyCaffe first
-            import caffe
-            self.caffe = caffe
+            import cf
+            self.caffe = cf
         except ImportError:
             # Fall back to the protobuf implementation
             from . import caffepb

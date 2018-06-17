@@ -6,9 +6,9 @@ SafeImage is an Web Service, where the users can submit an image and obtain the 
 SafeImage is composed by two components:
 
 1.  An REST WebService API provided by Flask Framework.
-2.  A Deep Neural Network to classify images using Tensorflow.
+2.  A Deep Neural Network to classify images using Tensorflow or Caffe.
 
-Currently reported evaluation against Arquivo.pt Image Search queries:
+Currently reported classification evaluation against Arquivo.pt Image Search queries:
 
 ![](https://github.com/arquivo/SafeImage/blob/master/docs/ROC.png?raw=true "ROC")
 
@@ -22,33 +22,21 @@ git clone https://github.com/arquivo/SafeImage.git
 
 Install Requirements
 --------------------
-
-1.  An working enviroment with Python2.7.
-2.  Install Requirements.txt with pip.
-
-``` sourceCode
-cd SafeImage/
-pip install -r requirements.txt
-```
-3. Install SafeImage API:
+1. Install SafeImage API:
 
 ``` sourceCode
 python setup.py install
 ```
 
-Launch SafeImage API throug uWSGI:
+Launch SafeImage API through uWSGI:
 ----------------------------------
 
 ``` sourceCode
 uwsgi uwsgi.ini
 ```
 
-Test the service using the provided test client:
-------------------------------------------------
-
-``` sourceCode
-python client_test.py http://example.org/image.jpg
-```
+Launch a classification worker through command line:
+safe-image-worker
 
 Example of request to the API:
 ------------------------------
