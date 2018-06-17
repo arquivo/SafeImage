@@ -1,16 +1,23 @@
 SafeImage
 =========
 
-SafeImage is an Web Service, where the users can submit an image and obtain the NSFW (Not Safe for Work) score of the image.
+SafeImage is a project that provides ways to classify images content as NSFW (Not Safe for Work).
 
 SafeImage is composed by two components:
 
-1.  An REST WebService API provided by Flask Framework.
-2.  A Deep Neural Network to classify images using Tensorflow or Caffe.
+1. An REST WebService API provided by Flask Framework.
+2. Deep Neural Networks models to classify images, ResNet and SqueezeNet.
+3. Classification Workers to classify images from a Redis Queue.
 
-Currently reported classification evaluation against Arquivo.pt Image Search queries:
+Currently reported classification evaluation against the evaluation dataset:
 
-![](https://github.com/arquivo/SafeImage/blob/master/docs/ROC.png?raw=true "ROC")
+Resnet Model
+
+![](https://github.com/arquivo/SafeImage/blob/master/docs/ROC_OpenNSFW.pdf?raw=true "ResnetNSFW ROC")
+
+SqueezeNet Model
+
+![](https://github.com/arquivo/SafeImage/blob/master/docs/ROC_NsfwSqueeze.pdf?raw=true "SqueezeNetNSFW ROC")
 
 
 Get code from Repository
