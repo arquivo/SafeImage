@@ -13,11 +13,11 @@ Currently reported classification evaluation against the evaluation dataset:
 
 Resnet Model
 
-![](https://github.com/arquivo/SafeImage/blob/master/docs/ROC_OpenNSFW.pdf?raw=true "ResnetNSFW ROC")
+![](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
 
 SqueezeNet Model
 
-![](https://github.com/arquivo/SafeImage/blob/master/docs/ROC_NsfwSqueeze.pdf?raw=true "SqueezeNetNSFW ROC")
+![](https://github.com/arquivo/SafeImage/blob/master/docs/SqueezeNet_NSFW_ROC.png?raw=true "SqueezeNetNSFW ROC")
 
 
 Get code from Repository
