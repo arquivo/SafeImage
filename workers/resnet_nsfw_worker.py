@@ -17,11 +17,11 @@ def main():
 
     args = parser.parse_args()
 
-    init_worker(args.hostname, args.port, args.batch_size, args.polling_time)
+    init_worker(args.hostname, args.port, int(args.batch_size), float(args.polling_time))
 
 
 def init_worker(hostname, port, batch_size, polling_time):
-    db = redis.StrictRedis(hostname=hostname, port=port)
+    db = redis.StrictRedis(host=hostname, port=port)
 
     classifier = CaffeNsfwResnetClassifier(batch_size=batch_size)
 
