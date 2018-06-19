@@ -15,7 +15,7 @@ def main():
     parser.add_argument('batch_size', default=1, help='Specify the batch size to classify.')
     parser.add_argument('polling_time', default=0.25, help='Polling time interval in seconds.')
 
-    args = argparse.parse_args()
+    args = parser.parse_args()
 
     init_worker(args.hostname, args.port, args.batch_size, args.polling_time)
 
