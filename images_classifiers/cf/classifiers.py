@@ -1,11 +1,15 @@
 import os
 from io import BytesIO
+import time
 
 import numpy as np
 from PIL import Image
+from PIL import ImageFile
 
 import caffe
 from classifier import Classifier
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class CaffeNsfwSqueezeClassifier(Classifier):
@@ -112,6 +116,7 @@ class CaffeNsfwSqueezeClassifier(Classifier):
 
             transformed_images = None
 
+            start = time.time()
             for pimg in pimgs:
                 img_bytes = self.resize_image(pimg, sz=(256, 256))
                 image = caffe.io.load_image(img_bytes)
@@ -129,11 +134,13 @@ class CaffeNsfwSqueezeClassifier(Classifier):
                     transformed_images = np.vstack((transformed_images, transformed_image))
                 else:
                     transformed_images = transformed_image
-
+            end = time.time()
             input_name = self.squeeze_nsfw_net.inputs[0]
             all_outputs = self.squeeze_nsfw_net.forward_all(blobs=output_layers, **{input_name: transformed_images})
 
-            outputs = np.around(all_outputs['prob'][:, 1].flatten().astype(float), decimals=3)
+            outputs = np.around(all_outputs['prob'][:,1].flatten().astype(float), decimals=3)
+
+            print("Time Preprocessing Images: {} seconds".format(end - start))
             return outputs
         else:
             return []
@@ -253,22 +260,30 @@ class CaffeNsfwResnetClassifier(Classifier):
             transformed_images = None
 
             for pimg in pimgs:
-                img_bytes = self.resize_image(pimg, sz=(256, 256))
-                image = caffe.io.load_image(img_bytes)
+                try:
+                    img_bytes = self.resize_image(pimg, sz=(256, 256))
 
-                H, W, _ = image.shape
-                _, _, h, w = self.nsfw_net.blobs['data'].data.shape
-                h_off = max((H - h) / 2, 0)
-                w_off = max((W - w) / 2, 0)
-                crop = image[int(h_off):int(h_off + h), int(w_off):int(w_off + w), :]
-                transformed_image = self.caffe_transformer.preprocess('data', crop)
-                transformed_image.shape = (1,) + transformed_image.shape
+                    image = caffe.io.load_image(img_bytes)
+
+                    H, W, _ = image.shape
+                    _, _, h, w = self.nsfw_net.blobs['data'].data.shape
+                    h_off = max((H - h) / 2, 0)
+                    w_off = max((W - w) / 2, 0)
+                    crop = image[int(h_off):int(h_off + h), int(w_off):int(w_off + w), :]
+                    transformed_image = self.caffe_transformer.preprocess('data', crop)
+                    transformed_image.shape = (1,) + transformed_image.shape
+                except Exception as e:
+                    # TODO get a better method to handle this.
+                    # if error classify a blank image
+                    transformed_image = np.zeros((1,3,224,224))
+                    print(e)
 
                 if transformed_images is not None:
                     # vstack transformed images
                     transformed_images = np.vstack((transformed_images, transformed_image))
                 else:
                     transformed_images = transformed_image
+
 
             input_name = self.nsfw_net.inputs[0]
             all_outputs = self.nsfw_net.forward_all(blobs=output_layers, **{input_name: transformed_images})
