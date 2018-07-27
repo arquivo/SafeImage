@@ -1,9 +1,9 @@
+import argparse
 import base64
 import json
 import time
 
 import redis
-import argparse
 
 from images_classifiers.cf.classifiers import CaffeNsfwResnetClassifier
 
@@ -21,7 +21,6 @@ def main():
     init_worker(args.hostname, args.port, int(args.batch_size), int(args.fetch_size), float(args.polling_time))
 
 
-
 def init_worker(hostname, port, batch_size, fetch_size, polling_time):
     db = redis.StrictRedis(host=hostname, port=port)
 
@@ -29,7 +28,6 @@ def init_worker(hostname, port, batch_size, fetch_size, polling_time):
 
     while True:
         start = time.time()
-        # queue = db.lrange("image_queueing", 0, batch_size)
         fetch_queue = db.lrange("image_queueing", 0, fetch_size)
 
         queues = [fetch_queue[:batch_size], fetch_queue[batch_size:]]
@@ -55,9 +53,7 @@ def init_worker(hostname, port, batch_size, fetch_size, polling_time):
         end = time.time()
         elapsed_time = end - start
         time.sleep(polling_time)
-        # print("Elapsed Time: {}".format(elapsed_time))
         print("* Images/Second: {}".format(fetch_size / (elapsed_time + polling_time)))
-
 
 
 if __name__ == '__main__':

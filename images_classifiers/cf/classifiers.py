@@ -2,11 +2,11 @@ import os
 from io import BytesIO
 import time
 
+import caffe
 import numpy as np
 from PIL import Image
 from PIL import ImageFile
 
-import caffe
 from classifier import Classifier
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -14,7 +14,8 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class CaffeNsfwSqueezeClassifier(Classifier):
 
-    def __init__(self, batch_size=1):
+    def __init__(self, batch_size=1, mode_gpu=True):
+        self.mode_gpu = mode_gpu
         self.model = os.path.join(os.path.dirname(__file__), "models/nsfw_squeezenet_model/deploy.prototxt")
         self.weights = os.path.join(os.path.dirname(__file__),
                                     "models/nsfw_squeezenet_model/nsfw_squeezenet.caffemodel")
@@ -67,6 +68,8 @@ class CaffeNsfwSqueezeClassifier(Classifier):
             :return:
                 Returns the requested outputs from the Caffe net.
             """
+
+        caffe.set_mode_gpu()
         if self.squeeze_nsfw_net is not None:
 
             # Grab the default output names if none were requested specifically.
@@ -156,7 +159,8 @@ class CaffeNsfwSqueezeClassifier(Classifier):
 
 class CaffeNsfwResnetClassifier(Classifier):
 
-    def __init__(self, batch_size=1):
+    def __init__(self, batch_size=1, mode_gpu=True):
+        self.mode_gpu = mode_gpu
         self.model = os.path.join(os.path.dirname(__file__), "models/nsfw_resnet_model/deploy.prototxt")
         self.weights = os.path.join(os.path.dirname(__file__),
                                     "models/nsfw_resnet_model/resnet_50_1by2_nsfw.caffemodel")
@@ -209,6 +213,10 @@ class CaffeNsfwResnetClassifier(Classifier):
         :return:
             Returns the requested outputs from the Caffe net.
         """
+
+        if self.mode_gpu:
+            caffe.set_mode_gpu()
+
         if self.nsfw_net is not None:
 
             # Grab the default output names if none were requested specifically.
@@ -250,6 +258,9 @@ class CaffeNsfwResnetClassifier(Classifier):
         :return:
             Returns the requested outputs from the Caffe net.
         """
+
+        if self.mode_gpu:
+            caffe.set_mode_gpu()
 
         if self.nsfw_net is not None:
 
