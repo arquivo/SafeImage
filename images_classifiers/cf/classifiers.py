@@ -1,12 +1,12 @@
 import os
-from io import BytesIO
 import time
+from io import BytesIO
 
-import caffe
 import numpy as np
 from PIL import Image
 from PIL import ImageFile
 
+import caffe
 from classifier import Classifier
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -68,8 +68,10 @@ class CaffeNsfwSqueezeClassifier(Classifier):
             :return:
                 Returns the requested outputs from the Caffe net.
             """
+        if self.mode_gpu:
+            caffe.set_mode_gpu()
 
-        caffe.set_mode_gpu()
+
         if self.squeeze_nsfw_net is not None:
 
             # Grab the default output names if none were requested specifically.
@@ -110,6 +112,9 @@ class CaffeNsfwSqueezeClassifier(Classifier):
         :return:
             Returns the requested outputs from the Caffe net.
         """
+        if self.mode_gpu:
+            caffe.set_mode_gpu()
+
 
         if self.squeeze_nsfw_net is not None:
 
@@ -141,7 +146,7 @@ class CaffeNsfwSqueezeClassifier(Classifier):
             input_name = self.squeeze_nsfw_net.inputs[0]
             all_outputs = self.squeeze_nsfw_net.forward_all(blobs=output_layers, **{input_name: transformed_images})
 
-            outputs = np.around(all_outputs['prob'][:,1].flatten().astype(float), decimals=3)
+            outputs = np.around(all_outputs['prob'][:, 1].flatten().astype(float), decimals=3)
 
             print("Time Preprocessing Images: {} seconds".format(end - start))
             return outputs
@@ -286,7 +291,7 @@ class CaffeNsfwResnetClassifier(Classifier):
                 except Exception as e:
                     # TODO get a better method to handle this.
                     # if error classify a blank image
-                    transformed_image = np.zeros((1,3,224,224))
+                    transformed_image = np.zeros((1, 3, 224, 224))
                     print(e)
 
                 if transformed_images is not None:
@@ -294,7 +299,6 @@ class CaffeNsfwResnetClassifier(Classifier):
                     transformed_images = np.vstack((transformed_images, transformed_image))
                 else:
                     transformed_images = transformed_image
-
 
             input_name = self.nsfw_net.inputs[0]
             all_outputs = self.nsfw_net.forward_all(blobs=output_layers, **{input_name: transformed_images})
@@ -311,3 +315,22 @@ class CaffeNsfwResnetClassifier(Classifier):
     def classify(self, image_data):
         scores = self.caffe_preprocess_and_compute(image_data)
         return scores.tolist()
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('image_url')
+
+    args = parser.parse_args()
+
+    classifier_squeezenet = CaffeNsfwSqueezeClassifier(mode_gpu=False)
+    classifier_resnet = CaffeNsfwResnetClassifier(mode_gpu=False)
+
+    # open image
+    from urllib.request import urlopen
+    image_data = urlopen(args.image_url).read()
+
+    print("SqueezeNet Result: {}".format(classifier_squeezenet.classify(image_data)))
+    print("Resnet Result: {}".format(classifier_resnet.classify(image_data)))

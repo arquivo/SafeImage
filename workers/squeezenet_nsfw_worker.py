@@ -1,9 +1,9 @@
+import argparse
 import base64
 import json
 import time
 
 import redis
-import argparse
 
 from images_classifiers.cf.classifiers import CaffeNsfwSqueezeClassifier
 
@@ -26,10 +26,11 @@ def init_worker(hostname, port, batch_size, polling_time):
     classifier = CaffeNsfwSqueezeClassifier(batch_size=batch_size)
 
     while True:
+        start = time.time()
         queue = db.lrange("image_queueing", 0, batch_size)
+
         image_ids = []
         batch = []
-
         for q in queue:
             q = json.loads(q.decode("utf-8"))
             image = q["image"]
@@ -46,7 +47,12 @@ def init_worker(hostname, port, batch_size, polling_time):
 
             db.ltrim("image_queueing", len(image_ids), -1)
 
+        end = time.time()
+        elapsed_time = end - start
         time.sleep(polling_time)
+
+        print("** Batch Size: {}".format(len(batch)))
+        print("** Images/Second: {}".format(len(batch) / (elapsed_time + polling_time)))
 
 
 if __name__ == '__main__':
