@@ -1,11 +1,14 @@
 import argparse
 import base64
 import json
+import logging
 import time
 
 import redis
 
 from images_classifiers.cf.classifiers import CaffeNsfwResnetClassifier
+
+logging.basicConfig(level=logging.INFO)
 
 
 def main():
@@ -39,7 +42,7 @@ def init_worker(hostname, port, batch_size, polling_time):
             image_ids.append(q["id"])
 
         if len(image_ids) > 0:
-            print("* Batch size: {}".format(len(batch)))
+            logging.info("Batch size: {}".format(len(batch)))
             results = classifier.classify_batch(batch)
 
         for i in range(len(image_ids)):
@@ -51,8 +54,12 @@ def init_worker(hostname, port, batch_size, polling_time):
         elapsed_time = end - start
         time.sleep(polling_time)
 
+<<<<<<< HEAD
+        logging.info("Images/Second: {}".format(len(batch) / (elapsed_time + polling_time)))
+=======
         print("** Batch Size: {}".format(len(batch)))
         print("** Images/Second: {}".format(len(batch) / (elapsed_time + polling_time)))
+>>>>>>> 81668751559bb089826583a89ebd89b21ecc5495
 
 
 if __name__ == '__main__':
