@@ -5,7 +5,7 @@ SafeImage is a project that provides ways to classify images content as NSFW (No
 
 SafeImage is composed by two components:
 
-1. An REST WebService API.
+1. REST WebService API.
 2. Neural Networks models to classify images
 3. Classification Workers to classify images from a Redis Queue.
 4. Command utility tools for testing.
