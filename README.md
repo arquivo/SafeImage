@@ -11,8 +11,12 @@ SafeImage is composed by two components:
 4. Command utility tools for testing.
 
 Currently reported classification evaluation against the evaluation dataset:
-[Resnet Model](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
-[SqueezeNet Model](https://github.com/arquivo/SafeImage/blob/master/docs/SqueezeNet_NSFW_ROC.png?raw=true "SqueezeNetNSFW ROC")
+
+Resnet Model
+![resnet](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
+
+SqueezeNet Model
+![squeezenet](https://github.com/arquivo/SafeImage/blob/master/docs/SqueezeNet_NSFW_ROC.png?raw=true "SqueezeNetNSFW ROC")
 
 
 Get code from Repository
