@@ -1,23 +1,18 @@
 SafeImage
 =========
 
-SafeImage is a project that provides ways to classify images content as NSFW (Not Safe for Work).
+SafeImage is a project that provides ways to classify images content as NSFW (Not Suitable for Work).
 
 SafeImage is composed by two components:
 
-1. An REST WebService API provided by Flask Framework.
-2. Deep Neural Networks models to classify images, ResNet and SqueezeNet.
+1. An REST WebService API.
+2. Neural Networks models to classify images
 3. Classification Workers to classify images from a Redis Queue.
+4. Command utility tools for testing.
 
 Currently reported classification evaluation against the evaluation dataset:
-
-Resnet Model
-
-![](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
-
-SqueezeNet Model
-
-![](https://github.com/arquivo/SafeImage/blob/master/docs/SqueezeNet_NSFW_ROC.png?raw=true "SqueezeNetNSFW ROC")
+[Resnet Model](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
+[SqueezeNet Model](https://github.com/arquivo/SafeImage/blob/master/docs/SqueezeNet_NSFW_ROC.png?raw=true "SqueezeNetNSFW ROC")
 
 
 Get code from Repository
@@ -35,15 +30,27 @@ Install Requirements
 python setup.py install
 ```
 
+Launch Test Tool:
+----------
+``` sourceCode
+cli-safeimage-test-tool --help
+```
+
+Launch Classification Workers:
+------------------------------
+``` sourceCode
+nsfw-resnet-worker --help
+nsfw-squeezenet-worker --help
+```
+
+
+
 Launch SafeImage API through uWSGI:
 ----------------------------------
 
 ``` sourceCode
 uwsgi uwsgi.ini
 ```
-
-Launch a classification worker through command line:
-safe-image-worker
 
 Example of request to the API:
 ------------------------------

@@ -5,13 +5,13 @@ setup(
     name='SafeImage',
     version='1.0',
     packages=find_packages(),
-    package_data={'': ['*.npy']},
+    package_data={'': ['*.npy', '*.prototxt', '*.caffemodel', '*.binaryproto']},
     include_package_data=True,
     url='https://github.com/arquivo/SafeImage',
     license='',
     author='dbicho',
     author_email='daniel.bicho@fccn.pt',
-    description='REST Web Service to classify an image if it have adult free content or not',
+    description='SafeImage Arquivo.pt Classification Tools',
     install_requires=[
         'PyYAML',
         'redis',
@@ -32,7 +32,8 @@ setup(
         'console_scripts': [
             'safe-image-api=safe_image_api:main',
             'nsfw-resnet-worker=workers.resnet_nsfw_worker:main',
-            'nsfw-squeezenet-worker=workers.squeezenet_nsfw_worker:main'
+            'nsfw-squeezenet-worker=workers.squeezenet_nsfw_worker:main',
+            'cli-safeimage-test-tool=tests.cli_models_test:main'
         ],
     },
 )
