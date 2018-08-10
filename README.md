@@ -12,10 +12,10 @@ SafeImage is composed by two components:
 
 Currently reported classification evaluation against the evaluation dataset:
 
-Resnet Model
+#### Resnet ROC
 ![resnet](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
 
-SqueezeNet Model
+#### SqueezeNet ROC
 ![squeezenet](https://github.com/arquivo/SafeImage/blob/master/docs/SqueezeNet_NSFW_ROC.png?raw=true "SqueezeNetNSFW ROC")
 
 
@@ -32,6 +32,11 @@ Install Requirements
 
 ``` sourceCode
 python setup.py install
+```
+2. Add to PYTHONPATH the directory where Caffe is installed:
+
+``` sourceCode
+export PYTHONPATH=$PYTHONPATH:/opt/caffe/python
 ```
 
 Launch Test Tool:
