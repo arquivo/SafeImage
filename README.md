@@ -10,8 +10,6 @@ SafeImage is composed by two components:
 3. Classification Workers to classify images from a Redis Queue.
 4. Command utility tools for testing.
 
-Currently reported classification evaluation against the evaluation dataset:
-
 #### Resnet ROC
 ![resnet](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
 
