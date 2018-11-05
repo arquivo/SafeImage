@@ -5,17 +5,15 @@ SafeImage is a project that provides ways to classify images content as NSFW (No
 
 SafeImage is composed by two components:
 
-1. An REST WebService API.
+1. REST WebService API.
 2. Neural Networks models to classify images
 3. Classification Workers to classify images from a Redis Queue.
 4. Command utility tools for testing.
 
-Currently reported classification evaluation against the evaluation dataset:
-
-Resnet Model
+#### Resnet ROC
 ![resnet](https://github.com/arquivo/SafeImage/blob/master/docs/Resnet_NSFW_ROC.png?raw=true "ResnetNSFW ROC")
 
-SqueezeNet Model
+#### SqueezeNet ROC
 ![squeezenet](https://github.com/arquivo/SafeImage/blob/master/docs/SqueezeNet_NSFW_ROC.png?raw=true "SqueezeNetNSFW ROC")
 
 
@@ -32,6 +30,11 @@ Install Requirements
 
 ``` sourceCode
 python setup.py install
+```
+2. Add to PYTHONPATH the directory where Caffe is installed:
+
+``` sourceCode
+export PYTHONPATH=$PYTHONPATH:/opt/caffe/python
 ```
 
 Launch Test Tool:
