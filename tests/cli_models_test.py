@@ -11,10 +11,17 @@ if __name__ == '__main__':
 
     classifier_squeezenet = CaffeNsfwSqueezeClassifier(mode_gpu=False)
     classifier_resnet = CaffeNsfwResnetClassifier(mode_gpu=False)
+    classifier_resnet_oversampling = CaffeNsfwResnetClassifier(mode_gpu=False, oversampling=True)
 
     # open image
     from urllib.request import urlopen
     image_data = urlopen(args.image_url).read()
 
-    print("SqueezeNet Result: {}".format(classifier_squeezenet.classify(image_data)))
-    print("Resnet Result: {}".format(classifier_resnet.classify(image_data)))
+    squeezenet_result = classifier_squeezenet.classify(image_data)[0]
+    resnet_result = classifier_resnet.classify(image_data)
+    resnet_oversampling_result = classifier_resnet_oversampling.classify(image_data)
+
+    print("SqueezeNet Result: {}".format(squeezenet_result))
+    print("Resnet Result: {}".format(resnet_result))
+    print("Resnet with Oversampling Result: {}".format(resnet_oversampling_result))
+    print("Resnet AWP Result: {}".format(None))

@@ -54,12 +54,9 @@ def init_worker(hostname, port, batch_size, polling_time):
         elapsed_time = end - start
         time.sleep(polling_time)
 
-<<<<<<< HEAD
         logging.info("Images/Second: {}".format(len(batch) / (elapsed_time + polling_time)))
-=======
-        print("** Batch Size: {}".format(len(batch)))
-        print("** Images/Second: {}".format(len(batch) / (elapsed_time + polling_time)))
->>>>>>> 81668751559bb089826583a89ebd89b21ecc5495
+        # print("** Batch Size: {}".format(len(batch)))
+        # print("** Images/Second: {}".format(len(batch) / (elapsed_time + polling_time)))
 
 
 if __name__ == '__main__':

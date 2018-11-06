@@ -33,7 +33,8 @@ setup(
             'safe-image-api=safe_image_api:main',
             'nsfw-resnet-worker=workers.resnet_nsfw_worker:main',
             'nsfw-squeezenet-worker=workers.squeezenet_nsfw_worker:main',
-            'cli-safeimage-test-tool=tests.cli_models_test:main'
+            'cli-safeimage-test-tool=tests.cli_models_test:main',
+            'cli-safeimage-indexing=indexing.classify_images_index:main'
         ],
     },
 )
