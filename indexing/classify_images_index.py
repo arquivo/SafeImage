@@ -79,7 +79,7 @@ def main():
                         json_doc = json.loads(line)
                     except Exception as e:
                         logger.info("Error ocurred: {}".format(e))
-                        logger.infor("At line {}".format(line))
+                        logger.info("At line {}".format(line))
 
                     # verify if is an animated image
                     # is_animated, actually is true for multilayers and multi frames images...
