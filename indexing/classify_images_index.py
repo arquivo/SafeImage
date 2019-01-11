@@ -113,7 +113,7 @@ def main():
                             json_doc = batch_json_docs[i]
                             json_doc['safe'] = results[i]
                             output_file.write(json.dumps(json_doc))
-                            logger.info("{} {}".format(json_doc['imgSrc'], json_doc['safe']))
+                            logger.info("{} {} {}".format(json_doc['timestamp'], json_doc['imgSrc'], json_doc['safe']))
                         end = time.time()
                         print('Records / Second: {}'.format(round(batch_size / (end - start), 2)))
 
@@ -123,7 +123,7 @@ def main():
                         json_doc = batch_json_docs[i]
                         json_doc['safe'] = results[i]
                         output_file.write(json.dumps(json_doc))
-                        logger.info("{} {}".format(json_doc['imgSrc'], json_doc['safe']))
+                        logger.info("{} {} {}".format(json_doc['timestamp'], json_doc['imgSrc'], json_doc['safe']))
 
 
 if __name__ == '__main__':

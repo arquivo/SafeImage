@@ -1,5 +1,6 @@
 from images_classifiers.cf.classifiers import CaffeNsfwResnetClassifier
 from images_classifiers.cf.classifiers import CaffeNsfwSqueezeClassifier
+from six.moves.urllib.request import urlopen
 
 if __name__ == '__main__':
     import argparse
@@ -14,7 +15,6 @@ if __name__ == '__main__':
     classifier_resnet_oversampling = CaffeNsfwResnetClassifier(mode_gpu=False, oversampling=True)
 
     # open image
-    from urllib.request import urlopen
     image_data = urlopen(args.image_url).read()
 
     squeezenet_result = classifier_squeezenet.classify(image_data)[0]
