@@ -41,7 +41,7 @@ def main():
 
     args = parser.parse_args()
 
-    batch_size = args.batch_size
+    batch_size = int(args.batch_size)
 
     mode_gpu = True if args.mode_gpu else False
 
@@ -70,11 +70,13 @@ def main():
 
                 logger.info('******* Classifying Index {}'.format(path))
 
-                for line in input_file:
-                    batch_json_docs = []
-                    batch_img = []
+                batch_json_docs = []
+                batch_img = []
 
-                    start = time.time()
+                start = time.time()
+
+                for line in input_file:
+
                     try:
                         json_doc = json.loads(line)
                     except Exception as e:
@@ -113,9 +115,15 @@ def main():
                             json_doc = batch_json_docs[i]
                             json_doc['safe'] = results[i]
                             output_file.write(json.dumps(json_doc))
-                            logger.info("{} {} {}".format(json_doc['timestamp'], json_doc['imgSrc'], json_doc['safe']))
+                            logger.info("{} {} {}".format(json_doc['imgTstamp'], json_doc['imgSrc'], json_doc['safe']))
                         end = time.time()
+
+                        batch_json_docs = []
+                        batch_img = []
+
                         print('Records / Second: {}'.format(round(batch_size / (end - start), 2)))
+
+                        start = time.time()
 
                 if len(batch_img) != 0:
                     results = classifier.classify_batch(batch_img)
@@ -123,7 +131,7 @@ def main():
                         json_doc = batch_json_docs[i]
                         json_doc['safe'] = results[i]
                         output_file.write(json.dumps(json_doc))
-                        logger.info("{} {} {}".format(json_doc['timestamp'], json_doc['imgSrc'], json_doc['safe']))
+                        logger.info("{} {} {}".format(json_doc['imgTstamp'], json_doc['imgSrc'], json_doc['safe']))
 
 
 if __name__ == '__main__':
