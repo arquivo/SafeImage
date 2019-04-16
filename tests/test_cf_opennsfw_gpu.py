@@ -39,7 +39,7 @@ def test_batch_speed_classifaction():
         model.classify_batch(image_data)
         end = time.time()
 
-        time_batch_16 = end - start
+        time_batch_16 = 16 / (end - start)
 
         model = CaffeNsfwResnetClassifier(batch_size=1, mode_gpu=True)
 
@@ -49,4 +49,4 @@ def test_batch_speed_classifaction():
 
         time_batch_1 = end - start
 
-        assert (16 / time_batch_16) <= time_batch_1
+        assert time_batch_16 <= time_batch_1
