@@ -94,6 +94,7 @@ def main():
                                 print("**** Animated GIF detected")
                                 result = classify_animated_image(img, classifier)
                                 json_doc['safe'] = result
+                                json_doc['animated'] = True
                                 output_file.write(json.dumps(json_doc))
                                 logger.info(
                                     "{} {} {} {}".format(img.format, img.n_frames, json_doc['imgSrc'],
@@ -114,6 +115,7 @@ def main():
                         for i in range(len(results)):
                             json_doc = batch_json_docs[i]
                             json_doc['safe'] = results[i]
+                            json_doc['animated'] = False
                             output_file.write(json.dumps(json_doc))
                             logger.info("{} {} {}".format(json_doc['imgTstamp'], json_doc['imgSrc'], json_doc['safe']))
                         end = time.time()
@@ -130,6 +132,7 @@ def main():
                     for i in range(len(results)):
                         json_doc = batch_json_docs[i]
                         json_doc['safe'] = results[i]
+                        json_doc['animated'] = False
                         output_file.write(json.dumps(json_doc))
                         logger.info("{} {} {}".format(json_doc['imgTstamp'], json_doc['imgSrc'], json_doc['safe']))
 
