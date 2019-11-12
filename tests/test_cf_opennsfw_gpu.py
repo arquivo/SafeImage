@@ -15,7 +15,7 @@ def test_classify():
 def test_batch_classification():
     model = CaffeNsfwResnetClassifier(batch_size=2, mode_gpu=True)
 
-    with open('test_files/image_test_1.jpg', mode='rb') as input_file:
+    with open('./test_files/image_test_1.jpg', mode='rb') as input_file:
         image_bytes = input_file.read()
         image_data = [image_bytes, image_bytes]
         result = model.classify_batch(image_data)
@@ -27,7 +27,7 @@ def test_batch_classification():
 def test_batch_speed_classifaction():
     model = CaffeNsfwResnetClassifier(batch_size=16, mode_gpu=True)
 
-    with open('test_files/image_test_1.jpg', mode='rb') as input_file:
+    with open('./test_files/image_test_1.jpg', mode='rb') as input_file:
         image_bytes = input_file.read()
         image_data = []
 
