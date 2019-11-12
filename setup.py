@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='SafeImage',
-    version='1.0',
+    version='1.0.1',
     packages=find_packages(),
     package_data={'': ['*.npy', '*.prototxt', '*.caffemodel', '*.binaryproto']},
     include_package_data=True,
@@ -13,18 +13,20 @@ setup(
     author_email='daniel.bicho@fccn.pt',
     description='SafeImage Arquivo.pt Classification Tools',
     install_requires=[
+        'argparse',
+        'pytest',
         'PyYAML',
         'redis',
         'requests',
         'numpy',
-        'tensorflow',
+        'tensorflow<=0.12.1',
         'Pillow',
-        'Flask',
+        'flask',
         'Flask_Autodoc',
         'Flask_RESTful',
         'uwsgi',
         'scipy',
-        'sklearn',
+        'scikit-learn<=0.20.0',
         'scikit-image'
     ],
 
