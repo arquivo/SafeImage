@@ -95,14 +95,14 @@ def main():
                                 result = classify_animated_image(img, classifier)
                                 json_doc['safe'] = result
                                 json_doc['animated'] = True
-                                output_file.write(json.dumps(json_doc))
+                                output_file.write("{}\n".format(json.dumps(json_doc)))
                                 logger.info(
                                     "{} {} {} {}".format(img.format, img.n_frames, json_doc['imgSrc'],
                                                          json_doc['safe']))
                                 continue
                     except Exception as e:
                         json_doc['safe'] = 0
-                        output_file.write(json.dumps(json_doc))
+                        output_file.write("{}\n".format(json.dumps(json_doc)))
                         logger.info("Error Ocurred at {}".format(e))
                         logger.info("Problem with {}".format(json_doc['imgSrc']))
                         continue
@@ -116,7 +116,7 @@ def main():
                             json_doc = batch_json_docs[i]
                             json_doc['safe'] = results[i]
                             json_doc['animated'] = False
-                            output_file.write(json.dumps(json_doc))
+                            output_file.write("{}\n".format(json.dumps(json_doc)))
                             logger.info("{} {} {}".format(json_doc['imgTstamp'], json_doc['imgSrc'], json_doc['safe']))
                         end = time.time()
 
@@ -133,7 +133,7 @@ def main():
                         json_doc = batch_json_docs[i]
                         json_doc['safe'] = results[i]
                         json_doc['animated'] = False
-                        output_file.write(json.dumps(json_doc))
+                        output_file.write("{}\n".format(json.dumps(json_doc)))
                         logger.info("{} {} {}".format(json_doc['imgTstamp'], json_doc['imgSrc'], json_doc['safe']))
 
 

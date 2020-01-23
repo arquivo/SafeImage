@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='SafeImage',
-    version='1.0.2',
+    version='1.0.3',
     packages=find_packages(),
     package_data={'': ['*.npy', '*.prototxt', '*.caffemodel', '*.binaryproto']},
     include_package_data=True,
