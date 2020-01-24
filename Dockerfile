@@ -88,6 +88,7 @@ RUN pip --no-cache-dir install \
 
 # Install useful Python packages using apt-get to avoid version incompatibilities with Tensorflow binary
 # especially numpy, scipy, skimage and sklearn (see https://github.com/tensorflow/tensorflow/issues/2034)
+###
 RUN apt-get update && apt-get install -y \
 		python-numpy \
 		python-scipy \
@@ -143,15 +144,17 @@ RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 # Install our models
 
 # places365
-RUN git clone https://github.com/arquivo/places365.git  /root/places365
+# RUN git clone https://github.com/arquivo/places365.git  /root/places365
 
-WORKDIR "/root/caffe"
-RUN wget http://places2.csail.mit.edu/models_places365/alexnet_places365.caffemodel
-RUN wget https://raw.githubusercontent.com/metalbubble/places365/master/deploy_alexnet_places365.prototxt
-RUN mv alexnet_places365.caffemodel deploy_alexnet_places365.prototxt /root/places365/docker/models_places
-RUN cp -r /root/places365/docker/* /root/caffe/
+# WORKDIR "/root/caffe"
+# RUN wget http://places2.csail.mit.edu/models_places365/alexnet_places365.caffemodel
+# RUN wget https://raw.githubusercontent.com/metalbubble/places365/master/deploy_alexnet_places365.prototxt
+# RUN mv alexnet_places365.caffemodel deploy_alexnet_places365.prototxt /root/places365/docker/models_places
+# RUN cp -r /root/places365/docker/* /root/caffe/
 
 # safeimage
-RUN pip install git+https://github.com/arquivo/SafeImage.git
+COPY . .
+RUN pip install --ignore-installed -e .
+#RUN pip install git+https://github.com/arquivo/SafeImage.git
 
 CMD ["/bin/bash"]
