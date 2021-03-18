@@ -20,7 +20,7 @@ setup(
         'requests==2.22.0',
         'numpy==1.16.5',
         'tensorflow<=2.0.0',
-        'Pillow==6.2.1',
+        'Pillow==8.1.1',
         'flask==1.1.1',
         'Flask_Autodoc==0.1.2',
         'Flask_RESTful==0.3.7',
